@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.EventSourcing.EfCore</Title>
+        <Description>Use Koorsha Shirazi's event store as the Event Store.</Description>
+        <PackageTags>AspNetCore;EventSourcing;EfCore;EventStore;</PackageTags>
+        <RootNamespace>Kharazmi.EventSourcing.EfCore</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.EfCore\Kharazmi.AspNetCore.EfCore.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.EfCore"/>
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Kharazmi.EventSourcing.EfCore.Test</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+</Project>

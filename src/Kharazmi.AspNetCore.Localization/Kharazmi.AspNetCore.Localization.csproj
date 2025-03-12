@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.Localization</Title>
+        <Description>ASP.NET Core provides services and middleware for localizing into different languages and cultures. You can create XML, Json concretes as your repository.</Description>
+        <PackageTags>AspNetCore;Localization;Json;XML;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Localization</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Localization"  />
+    </ItemGroup>
+
+</Project>

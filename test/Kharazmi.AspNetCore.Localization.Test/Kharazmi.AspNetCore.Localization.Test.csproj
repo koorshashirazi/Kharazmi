@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Resources\MyResource.de-DE.json"/>
+        <EmbeddedResource Include="Resources\MyResource.en-US.json"/>
+        <EmbeddedResource Include="Resources\MyResource_2.de-DE.json"/>
+        <EmbeddedResource Include="Resources\MyResource_2.en-US.json"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Kharazmi.AspNetCore.Localization.EFCore\Kharazmi.AspNetCore.Localization.EFCore.csproj"/>
+        <ProjectReference Include="..\..\src\Kharazmi.AspNetCore.Localization\Kharazmi.AspNetCore.Localization.csproj"/>
+
+    </ItemGroup>
+
+</Project>

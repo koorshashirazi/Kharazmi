@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.Security</Title>
+        <Description>This Library Contains Infrastructures for Permission-based Authorization</Description>
+        <PackageTags>AspNetCore;Permission-based;Authorization;Antiforgery;Authentication Cookies;JwtBearer;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Security</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Kharazmi.AspNetCore.Cache" />
+        <PackageReference Include="Microsoft.AspNetCore.Antiforgery" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" />
+        <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" />
+
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <DefineConstants>NETSTANDARD2_0</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Cache\Kharazmi.AspNetCore.Cache.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <!--<PackageReference Include="Kharazmi.AspNetCore.Cache"/>-->
+    </ItemGroup>
+
+</Project>

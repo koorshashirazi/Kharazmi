@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.Web</Title>
+        <Description>This Library Contains Infrastructures for Permission-based Authorization,Building CRUD API,Building CRUD Mvc Controller and etc based on ASP.NET Core</Description>
+        <PackageTags>AspNetCore;CRUD API;Permission-based;Authorization;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Web</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MailKit" />
+        <PackageReference Include="Microsoft.AspNet.WebApi.Client" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+        <PackageReference Include="Microsoft.SyndicationFeed.ReaderWriter" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" />
+
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core" />
+        <PackageReference Include="Kharazmi.AspNetCore.Localization" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" />
+        <PackageReference Include="IdentityModel" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <DefineConstants>NETSTANDARD2_0</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Localization\Kharazmi.AspNetCore.Localization.csproj" />
+    </ItemGroup>
+
+
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>anycpu</PlatformTarget>
+    </PropertyGroup>
+</Project>

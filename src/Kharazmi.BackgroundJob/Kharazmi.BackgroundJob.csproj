@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.BackgroundJob</Title>
+        <Description>Kharazmi.AspNetCore.BackgroundJob is a Lightweight and Extensible Infrastructure for an easy and reliable way to perform fire-and-forget, delayed and recurring, long-running, short-running, CPU or I/O intensive tasks inside ASP.NET Core applications</Description>
+        <PackageTags>AspNetCore;BackgroundJob;AsyncJob;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.BackgroundJob</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PlatformTarget>anycpu</PlatformTarget>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Hangfire.AspNetCore"/>
+        <PackageReference Include="Hangfire.Core"/>
+        <PackageReference Include="Hangfire.MemoryStorage.Core"/>
+        <PackageReference Include="HangFire.Mongo"/>
+        <PackageReference Include="Hangfire.SqlServer"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authorization"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+    </ItemGroup>
+
+</Project>

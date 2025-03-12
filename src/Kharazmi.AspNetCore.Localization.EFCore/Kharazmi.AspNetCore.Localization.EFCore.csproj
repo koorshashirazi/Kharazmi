@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.Localization.EfCore</Title>
+        <Description>ASP.NET Core provides services and middleware for localizing into different languages and cultures. You can create EntityFramework core concretes as your repository.</Description>
+        <PackageTags>AspNetCore;Localization;EntityFramework Core;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Localization.EfCore</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Localization\Kharazmi.AspNetCore.Localization.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+        <PackageReference Include="Kharazmi.AspNetCore.Localization"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+    </ItemGroup>
+
+</Project>

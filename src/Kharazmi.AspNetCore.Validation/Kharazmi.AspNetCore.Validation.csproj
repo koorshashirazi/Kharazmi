@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <Title>Kharazmi.AspNetCore.Validation</Title>
+        <Description>This Library Contains Implementation of IModelValidator based on FluentValidation Library</Description>
+        <PackageTags>AspNetCore;Validation;DomainValiation;ModelValidation;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Validation</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+    </ItemGroup>
+
+</Project>

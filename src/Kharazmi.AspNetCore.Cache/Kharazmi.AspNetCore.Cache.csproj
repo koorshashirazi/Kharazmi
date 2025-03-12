@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+       
+        <Title>Kharazmi.AspNetCore.Cache</Title>
+        <Description>The Core library contains all base interfaces and tools. You should install at least one other CacheManager package to get cache handle implementations.</Description>
+        <PackageTags>AspNetCore;.NETCore;EFCore;SqlCache;EFCache;</PackageTags>
+        <AssemblyName>Kharazmi.AspNetCore.Cache</AssemblyName>
+        <RootNamespace>Kharazmi.AspNetCore.Cache</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="CacheManager.Core" />
+        <PackageReference Include="CacheManager.Serialization.Json" />
+        <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" />
+        <PackageReference Include="CacheManager.StackExchange.Redis" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.EfCore\Kharazmi.AspNetCore.EfCore.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.EfCore" />
+    </ItemGroup>
+    
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <DefineConstants>NETSTANDARD2_0</DefineConstants>
+    </PropertyGroup>
+
+
+</Project>

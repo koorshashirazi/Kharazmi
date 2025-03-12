@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.AspNetCore.Cqrs</Title>
+        <Description>Kharazmi.AspNetCore.Cqrs is a framework to provides the minimal infrastructure for CQRS and Event Sourcing architecture.</Description>
+        <PackageTags>AspNetCore;CQRS;</PackageTags>
+        <RootNamespace>Kharazmi.AspNetCore.Cqrs</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MediatR" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Validation\Kharazmi.AspNetCore.Validation.csproj" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core" />
+        <PackageReference Include="Kharazmi.AspNetCore.Validation" />
+    </ItemGroup>
+</Project>

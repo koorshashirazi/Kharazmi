@@ -1,0 +1,103 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.7.0.110445" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageVersion Include="CacheManager.Core" Version="2.0.0" />
+    <PackageVersion Include="CacheManager.Serialization.Json" Version="2.0.0" />
+    <PackageVersion Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
+    <PackageVersion Include="CacheManager.StackExchange.Redis" Version="2.0.0" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.11.74" />
+    <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.2" />
+    <PackageVersion Include="Nito.AsyncEx" Version="5.1.2" />
+    <PackageVersion Include="Castle.Core" Version="5.1.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Scrutor" Version="6.0.1" />
+    <PackageVersion Include="System.Drawing.Common" Version="9.0.2" />
+    <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageVersion Include="System.Collections.Immutable" Version="9.0.2" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.6.0.2" />
+    <PackageVersion Include="MediatR" Version="12.4.1" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="3.1.32" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.32" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Localization" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Antiforgery" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.3.0" />
+    <PackageVersion Include="FluentValidation" Version="11.11.0" />
+    <PackageVersion Include="MailKit" Version="4.11.0" />
+    <PackageVersion Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.SyndicationFeed.ReaderWriter" Version="1.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+    <PackageVersion Include="IdentityModel" Version="3.10.10" />
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.18" />
+    <PackageVersion Include="Hangfire.Core" Version="1.8.18" />
+    <PackageVersion Include="Hangfire.MemoryStorage.Core" Version="1.4.0" />
+    <PackageVersion Include="HangFire.Mongo" Version="1.10.9" />
+    <PackageVersion Include="Hangfire.SqlServer" Version="1.8.18" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="9.0.2" />
+    <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageVersion Include="Polly" Version="8.5.2" />
+    <PackageVersion Include="RawRabbit" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.DependencyInjection.ServiceCollection" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Enrichers.Attributes" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Enrichers.Polly" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Enrichers.MessageContext" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Enrichers.MessageContext.Subscribe" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Enrichers.RetryLater" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Operations.Publish" Version="2.0.0-rc5" />
+    <PackageVersion Include="RawRabbit.Operations.Subscribe" Version="2.0.0-rc5" />
+    <PackageVersion Include="MongoDB.Bson" Version="2.30.0" />
+    <PackageVersion Include="MongoDB.Driver" Version="2.30.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageVersion Include="Moq" Version="4.14.5" />
+    <PackageVersion Include="NSubstitute" Version="4.2.2" />
+    <PackageVersion Include="FluentAssertions" Version="5.10.3" />
+    <PackageVersion Include="xunit" Version="2.4.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageVersion Include="coverlet.collector" Version="1.2.0" />
+    <PackageVersion Include="AutoFixture" Version="4.11.0" />
+    <PackageVersion Include="AutoFixture.AutoMoq" Version="4.11.0" />
+    <PackageVersion Include="AutoFixture.AutoNSubstitute" Version="4.11.0" />
+    <PackageVersion Include="Benchmark" Version="1.0.2" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.13">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <PackageVersion Include="Kharazmi.AspNetCore.Cache" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Core" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Cqrs" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Cqrs.EfCore" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.EfCore" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Localization" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Localization.EfCore" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Security" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Validation" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.AspNetCore.Web" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.BackgroundJob" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.EventSourcing.EfCore" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.MessageBroker" Version="3.0.0" />
+    <PackageVersion Include="Kharazmi.MongoDb" Version="3.0.0" />
+  </ItemGroup>
+</Project>

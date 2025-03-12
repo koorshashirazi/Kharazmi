@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Title>Kharazmi.MongoDb</Title>
+        <Description>Kharazmi.MongoDb is a Lightweight and Extensible Infrastructure for provides the MongoDB implementation for data context and associated commands.</Description>
+        <PackageTags>AspNetCore;MongoDb;</PackageTags>
+        <RootNamespace>Kharazmi.MongoDb</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MongoDB.Bson"/>
+        <PackageReference Include="MongoDB.Driver"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+    </ItemGroup>
+
+</Project>
