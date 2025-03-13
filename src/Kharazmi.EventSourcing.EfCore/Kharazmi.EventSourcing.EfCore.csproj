@@ -20,8 +20,6 @@
         <PackageReference Include="Kharazmi.AspNetCore.EfCore"/>
     </ItemGroup>
 
-
-
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>Kharazmi.EventSourcing.EfCore.Test</_Parameter1>
