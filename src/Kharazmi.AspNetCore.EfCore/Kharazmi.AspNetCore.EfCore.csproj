@@ -8,23 +8,22 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
-    <ItemGroup>
-    
-        <PackageReference Include="Microsoft.EntityFrameworkCore" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="Kharazmi.AspNetCore.Core" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
-    </ItemGroup>
-
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <PlatformTarget>anycpu</PlatformTarget>
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     </PropertyGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational"/>
+    </ItemGroup>
+
 </Project>

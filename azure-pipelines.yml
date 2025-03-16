@@ -21,9 +21,49 @@ stages:
     pool:
       vmImage: 'ubuntu-latest'
     jobs:
+      - job: SetupLocalFeed
+        displayName: 'SetupLocalFeed'
+        dependsOn: [  ]
+        steps:
+          - task: Cache@2
+            displayName: 'Cache: nuke-temp'
+            inputs:
+              key: $(Agent.OS) | nuke-temp | **/global.json, **/*.csproj, **/Directory.Packages.props
+              restoreKeys: $(Agent.OS) | nuke-temp
+              path: .nuke/temp
+          - task: Cache@2
+            displayName: 'Cache: nuget-packages'
+            inputs:
+              key: $(Agent.OS) | nuget-packages | **/global.json, **/*.csproj, **/Directory.Packages.props
+              restoreKeys: $(Agent.OS) | nuget-packages
+              path: $(HOME)/.nuget/packages
+          - task: CmdLine@2
+            displayName: 'Run: SetupLocalFeed'
+            inputs:
+              script: './build.cmd SetupLocalFeed --skip'
+      - job: Pack
+        displayName: 'Pack'
+        dependsOn: [ SetupLocalFeed ]
+        steps:
+          - task: Cache@2
+            displayName: 'Cache: nuke-temp'
+            inputs:
+              key: $(Agent.OS) | nuke-temp | **/global.json, **/*.csproj, **/Directory.Packages.props
+              restoreKeys: $(Agent.OS) | nuke-temp
+              path: .nuke/temp
+          - task: Cache@2
+            displayName: 'Cache: nuget-packages'
+            inputs:
+              key: $(Agent.OS) | nuget-packages | **/global.json, **/*.csproj, **/Directory.Packages.props
+              restoreKeys: $(Agent.OS) | nuget-packages
+              path: $(HOME)/.nuget/packages
+          - task: CmdLine@2
+            displayName: 'Run: Pack'
+            inputs:
+              script: './build.cmd Pack --skip'
       - job: PublishToNuGet
         displayName: 'PublishToNuGet'
-        dependsOn: [  ]
+        dependsOn: [ Pack ]
         steps:
           - task: Cache@2
             displayName: 'Cache: nuke-temp'

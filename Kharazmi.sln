@@ -35,13 +35,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.MessageBroker", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.MongoDb", "src\Kharazmi.MongoDb\Kharazmi.MongoDb.csproj", "{B9F888FB-C427-45C9-8831-E431ED1C6F5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Core.Test", "test\Kharazmi.AspNetCore.Core.Test\Kharazmi.AspNetCore.Core.Test.csproj", "{53E43207-0952-42FF-9231-8BEBF1EEEB85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Core.IntegrationTests", "test\Kharazmi.AspNetCore.Core.IntegrationTests\Kharazmi.AspNetCore.Core.IntegrationTests.csproj", "{53E43207-0952-42FF-9231-8BEBF1EEEB85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Localization.Test", "test\Kharazmi.AspNetCore.Localization.Test\Kharazmi.AspNetCore.Localization.Test.csproj", "{3570A951-2A67-4E7A-8815-D43DD7F5183A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Localization.IntegrationTests", "test\Kharazmi.AspNetCore.Localization.IntegrationTests\Kharazmi.AspNetCore.Localization.IntegrationTests.csproj", "{3570A951-2A67-4E7A-8815-D43DD7F5183A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Core.XUnitTest", "test\Kharazmi.AspNetCore.Core.XUnitTest\Kharazmi.AspNetCore.Core.XUnitTest.csproj", "{4B116DD8-7ACA-4F43-B041-8A0712D69307}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.Core.XUnitTests", "test\Kharazmi.AspNetCore.Core.XUnitTests\Kharazmi.AspNetCore.Core.XUnitTests.csproj", "{4B116DD8-7ACA-4F43-B041-8A0712D69307}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.EventSourcing.EfCore.Test", "test\Kharazmi.EventSourcing.EfCore.Test\Kharazmi.EventSourcing.EfCore.Test.csproj", "{CCE176EC-484D-490F-A7E2-288A464CF36A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.EventSourcing.EfCore.XUnitTests", "test\Kharazmi.EventSourcing.EfCore.XUnitTests\Kharazmi.EventSourcing.EfCore.XUnitTests.csproj", "{CCE176EC-484D-490F-A7E2-288A464CF36A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
@@ -53,6 +53,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packages", "packages", "{EE7C86A6-CDE6-47C8-A162-1F8E238E70A3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{B5CF8F76-5B24-4AC2-BA68-D623413D033F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kharazmi.AspNetCore.EfCore.XUnitTests", "test\Kharazmi.AspNetCore.EfCore.XUnitTests\Kharazmi.AspNetCore.EfCore.XUnitTests.csproj", "{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,6 +136,10 @@ Global
 		{CCE176EC-484D-490F-A7E2-288A464CF36A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCE176EC-484D-490F-A7E2-288A464CF36A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCE176EC-484D-490F-A7E2-288A464CF36A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -157,5 +163,6 @@ Global
 		{3570A951-2A67-4E7A-8815-D43DD7F5183A} = {01918628-BF5D-4AD2-B3A1-CD3A08541F7E}
 		{4B116DD8-7ACA-4F43-B041-8A0712D69307} = {01918628-BF5D-4AD2-B3A1-CD3A08541F7E}
 		{CCE176EC-484D-490F-A7E2-288A464CF36A} = {01918628-BF5D-4AD2-B3A1-CD3A08541F7E}
+		{82BBC5A5-D347-46D8-B3C2-B97124EFEEEB} = {01918628-BF5D-4AD2-B3A1-CD3A08541F7E}
 	EndGlobalSection
 EndGlobal

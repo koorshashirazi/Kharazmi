@@ -9,15 +9,40 @@
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
     <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="coverlet.msbuild" />
     <PackageReference Include="Nuke.Common" />
     <PackageReference Include="Nuke.Utilities.IO.Globbing" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageDownload Include="coverlet.console" Version="[6.0.4]" />
     <PackageDownload Include="GitVersion.Tool" Version="[6.1.0]" />
+    <PackageDownload Include="NuGet.CommandLine" Version="[6.13.2]" />
+    <PackageDownload Include="ReportGenerator" Version="[5.4.4]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="..\.nuke\temp\build.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-00-42.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-31-26.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-33-35.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-37-06.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-43-17.log" />
+    <None Remove="..\.nuke\temp\build.2025-03-15_12-47-38.log" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="logs\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="version.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

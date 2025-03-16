@@ -24,15 +24,20 @@
     "ExecutableTarget": {
       "type": "string",
       "enum": [
+        "BuildDebug",
+        "BuildRelease",
         "Clean",
         "CommitChanges",
         "Compile",
-        "CompleteWorkflow",
         "Pack",
         "PublishToNuGet",
         "PushToGitHub",
+        "Report",
         "Restore",
-        "Test"
+        "SetupLocalFeed",
+        "Test",
+        "UpdatePackages",
+        "UpdateSpecificPackage"
       ]
     },
     "Verbosity": {
@@ -117,6 +122,10 @@
             "Release"
           ]
         },
+        "GitCommand": {
+          "type": "string",
+          "description": "The git command"
+        },
         "GitHubBranch": {
           "type": "string"
         },
@@ -128,14 +137,65 @@
         "GitHubUsername": {
           "type": "string"
         },
+        "IncrementMajorVersion": {
+          "type": "boolean",
+          "description": "Increment major version"
+        },
+        "IncrementMinorVersion": {
+          "type": "boolean",
+          "description": "Increment minor version"
+        },
+        "IncrementPatchVersion": {
+          "type": "boolean",
+          "description": "Increment Patch Version"
+        },
+        "MajorVersion": {
+          "type": "integer",
+          "description": "Major version",
+          "format": "int32"
+        },
+        "MinorVersion": {
+          "type": "integer",
+          "description": "Minor version",
+          "format": "int32"
+        },
+        "NewVersion": {
+          "type": "string",
+          "description": "New version for packages"
+        },
         "NuGetApiKey": {
           "type": "string",
           "description": "Nuget api key",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
+        "PackagePrefix": {
+          "type": "string",
+          "description": "Prefix of packages to update"
+        },
+        "PackagesToUpdate": {
+          "type": "string",
+          "description": "Packages to update. Example: 'Kharazmi.AspNetCore: 3.0.0, Kharazmi.EfCore: 3.0.1' "
+        },
+        "PatchVersion": {
+          "type": "integer",
+          "description": "Patch version",
+          "format": "int32"
+        },
         "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"
+        },
+        "VersionFile": {
+          "type": "string",
+          "description": "Version maintenance file"
+        },
+        "VersionPrefix": {
+          "type": "string",
+          "description": "Version prefix (e.g. alpha, beta)"
+        },
+        "VersionSuffix": {
+          "type": "string",
+          "description": "Version suffix (e.g. alpha.1, beta.2)"
         }
       }
     },

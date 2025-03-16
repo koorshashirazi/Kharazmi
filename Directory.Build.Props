@@ -2,7 +2,11 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <TargetFramework Condition="'$(OS)' != 'Windows_NT'">netstandard2.0</TargetFramework>
-        <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>
+        <!--        <OutputPath>$(SolutionDir)bin\$(Configuration)\</OutputPath>-->
+<!--        <IsTestProject>false</IsTestProject>-->
+<!--        <IsTestProject Condition="'$(MSBuildProjectName)' != '' AND $(MSBuildProjectName.EndsWith('Tests'))">true</IsTestProject>-->
+<!--        <OutputPath Condition="'$(IsTestProject)' == 'true'">$(MSBuildProjectDirectory)\bin\$(Configuration)\</OutputPath>-->
+<!--        <OutputPath Condition="'$(IsTestProject)' != 'true'">$(SolutionDir)bin\$(Configuration)\</OutputPath>-->
         <Authors>Kharazmi Developers</Authors>
         <Company>Kharazmi</Company>
         <IsPackable>true</IsPackable>
@@ -13,16 +17,16 @@
         <PackageReleaseNotes>Refactoring</PackageReleaseNotes>
         <PackageProjectUrl>https://github.com/koorshashirazi/Kharazmi</PackageProjectUrl>
 
-        <Version>3.0.0</Version>
-        <PackageVersion>3.0.0</PackageVersion>
-        <AssemblyVersion>3.0.0.0</AssemblyVersion>
-        <FileVersion>3.0.0.0</FileVersion>
+<!--        <Version>3.0.0</Version>-->
+<!--        <PackageVersion>3.0.0</PackageVersion>-->
+<!--        <AssemblyVersion>3.0.0.0</AssemblyVersion>-->
+<!--        <FileVersion>3.0.0.0</FileVersion>-->
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <GenerateResourceNeverLockTypeAssemblies>true</GenerateResourceNeverLockTypeAssemblies>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
         <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
@@ -35,35 +39,36 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <NoWarn>1591, CS0067, CS0618</NoWarn>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-        <NoWarn>1591, CS0067</NoWarn>
-    </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <PlatformTarget>anycpu</PlatformTarget>
     </PropertyGroup>
 
-    <ItemGroup Condition="('$(MSBuildProjectExtension)' != '.dcproj' and '$(Configuration)' == 'Debug')">
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <NoWarn>1591, CS0067, CS0618</NoWarn>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <NoWarn>1591, CS0067, CS1591, CA2201, S112, CA2000, CA1030, CA1062, CA5379, CA1716</NoWarn>
+    </PropertyGroup>
+ 
+    <ItemGroup Condition="('$(MSBuildProjectExtension)' != '.dcproj' And '$(Configuration)' == 'Debug')">
         <PackageReference Include="SonarAnalyzer.CSharp">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
-    <Target Name="PostBuild" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
-        <ItemGroup>
-            <NuGetPackages Include="$(SolutionDir)bin\$(Configuration)\*.nupkg" />
-        </ItemGroup>
-        <Copy SourceFiles="@(NuGetPackages)" DestinationFolder="$(SolutionDir)packages\" SkipUnchangedFiles="true" />
-    </Target>
+<!--    <Target Name="PostBuild" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">-->
+<!--        <ItemGroup>-->
+<!--            <NuGetPackages Include="$(SolutionDir)bin\$(Configuration)\*.nupkg"/>-->
+<!--        </ItemGroup>-->
+<!--        <Copy SourceFiles="@(NuGetPackages)" DestinationFolder="$(SolutionDir)packages\" SkipUnchangedFiles="true"/>-->
+<!--    </Target>-->
 
-    <Target Name="PostBuild" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">
-        <ItemGroup>
-            <NuGetPackages Include="$(SolutionDir)bin\$(Configuration)\*.nupkg" />
-        </ItemGroup>
-        <Copy SourceFiles="@(NuGetPackages)" DestinationFolder="$(SolutionDir)packages\" SkipUnchangedFiles="true" />
-    </Target>
+<!--    <Target Name="PostBuild" AfterTargets="Pack" Condition="'$(Configuration)' == 'Release'">-->
+<!--        <ItemGroup>-->
+<!--            <NuGetPackages Include="$(SolutionDir)bin\$(Configuration)\*.nupkg"/>-->
+<!--        </ItemGroup>-->
+<!--        <Copy SourceFiles="@(NuGetPackages)" DestinationFolder="$(SolutionDir)packages\" SkipUnchangedFiles="true"/>-->
+<!--    </Target>-->
 
 </Project>

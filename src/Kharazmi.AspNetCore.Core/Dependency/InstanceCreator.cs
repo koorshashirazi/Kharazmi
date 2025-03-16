@@ -21,19 +21,19 @@ public sealed record InstanceCreatorOptions(uint Capacity, bool EnableLru = true
 /// <summary>
 /// The InstanceCreator class provides methods for creating instances of types.
 /// </summary>
-public static class InstanceCreator
+public sealed class InstanceCreator : IDisposable
 {
     /// <summary>
     /// Dictionary that contains constructor information for types.
     /// </summary>
-    internal static readonly ConcurrentDictionary<string, TypeConstructorInfo> ConstructorInfos = new();
+    internal readonly ConcurrentDictionary<string, TypeConstructorInfo> ConstructorInfos = new();
 
     // Track circular dependencies during recursive calls
-    private static readonly ThreadLocal<HashSet<Type>> RecursionGuard = new(() => new HashSet<Type>());
+    private readonly ThreadLocal<HashSet<Type>> _recursionGuard = new(() => []);
 
     // For LRU cache implementation
-    private static readonly ConcurrentDictionary<string, long> LastAccessTimes = new();
-    private static long _accessCounter;
+    private readonly ConcurrentDictionary<string, long> _lastAccessTimes = new();
+    private long _accessCounter;
 
     /// <summary>
     /// Creates an instance of the specified type using the provided parameters.
@@ -42,7 +42,7 @@ public static class InstanceCreator
     /// <param name="options">Optional instance creator options.</param>
     /// <param name="primitiveArguments">Optional primitive arguments for the constructor.</param>
     /// <returns>An object of the specified type.</returns>
-    public static object CreateInstance(Type concreteType, Action<InstanceCreatorOptions>? options = null,
+    public object CreateInstance(Type concreteType, Action<InstanceCreatorOptions>? options = null,
         params object[] primitiveArguments)
     {
         if (concreteType == null) throw new ArgumentNullException(nameof(concreteType));
@@ -58,7 +58,7 @@ public static class InstanceCreator
         }
 
         // Check for circular dependencies
-        var recursionSet = RecursionGuard.Value!;
+        var recursionSet = _recursionGuard.Value!;
         if (recursionSet.Contains(concreteType))
         {
             throw new InstanceException($"Circular dependency detected for type {concreteType}");
@@ -88,7 +88,7 @@ public static class InstanceCreator
             // Update access time for LRU
             if (option.EnableLru)
             {
-                LastAccessTimes[key] = Interlocked.Increment(ref _accessCounter);
+                _lastAccessTimes[key] = Interlocked.Increment(ref _accessCounter);
             }
 
             // Match parameters by position and type
@@ -157,14 +157,14 @@ public static class InstanceCreator
     /// <param name="options">The optional options for creating the instance.</param>
     /// <param name="primitiveArguments"></param>
     /// <returns>An instance of type T.</returns>
-    public static T CreateInstance<T>(Action<InstanceCreatorOptions>? options = null,
+    public T CreateInstance<T>(Action<InstanceCreatorOptions>? options = null,
         params object[] primitiveArguments)
     {
         var instance = CreateInstance(typeof(T), options, primitiveArguments);
         return instance is T value ? value : throw new InstanceException(typeof(T));
     }
 
-    private static void ManageCache(InstanceCreatorOptions options)
+    private void ManageCache(InstanceCreatorOptions options)
     {
         if (ConstructorInfos.Count < options.Capacity)
             return;
@@ -172,14 +172,14 @@ public static class InstanceCreator
         if (options.EnableLru)
         {
             // LRU eviction strategy
-            var leastRecentlyUsedKey = LastAccessTimes
+            var leastRecentlyUsedKey = _lastAccessTimes
                 .OrderBy(kvp => kvp.Value)
                 .Select(kvp => kvp.Key)
                 .FirstOrDefault();
 
             if (leastRecentlyUsedKey == null) return;
             ConstructorInfos.TryRemove(leastRecentlyUsedKey, out _);
-            LastAccessTimes.TryRemove(leastRecentlyUsedKey, out _);
+            _lastAccessTimes.TryRemove(leastRecentlyUsedKey, out _);
         }
         else
         {
@@ -202,6 +202,11 @@ public static class InstanceCreator
             throw new InstanceException(
                 $"Can't create an instance of open generic type {concreteType}. The type {concreteType} contains unresolved generic parameters");
         }
+    }
+
+    public void Dispose()
+    {
+        _recursionGuard.Dispose();
     }
 }
 

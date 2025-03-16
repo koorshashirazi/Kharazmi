@@ -1,22 +1,27 @@
 using System;
+using System.Collections.Concurrent;
 using Kharazmi.AspNetCore.Core.Dependency;
 
 namespace Kharazmi.AspNetCore.Core.Domain.Aggregates
 {
     public interface IAggregateFactory
     {
-        TAggregate? Create<TAggregate, TKey>(params object[] primitiveArguments)
+        TAggregate GetOrCreate<TAggregate, TKey>(params object[] primitiveArguments)
             where TAggregate : class, IAggregateRoot<TKey>
             where TKey : IEquatable<TKey>;
     }
 
-    public class AggregateFactory : IAggregateFactory
+    public class AggregateFactory(InstanceCreator instanceCreator) : IAggregateFactory
     {
-        public TAggregate Create<TAggregate, TKey>(params object[] primitiveArguments)
+        private readonly InstanceCreator _instanceCreator = instanceCreator ?? throw new ArgumentNullException(nameof(instanceCreator));
+        private readonly ConcurrentDictionary<Type, IAggregateRoot> _aggregateRoots = [];
+
+        public TAggregate GetOrCreate<TAggregate, TKey>(params object[] primitiveArguments)
             where TAggregate : class, IAggregateRoot<TKey>
             where TKey : IEquatable<TKey>
         {
-            return InstanceCreator.CreateInstance<TAggregate>();
+            return (TAggregate)_aggregateRoots.GetOrAdd(typeof(TAggregate),
+                _instanceCreator.CreateInstance<TAggregate>());
         }
     }
 }

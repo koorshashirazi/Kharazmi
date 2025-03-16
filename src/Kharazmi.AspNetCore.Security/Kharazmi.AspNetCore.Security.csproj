@@ -10,7 +10,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Kharazmi.AspNetCore.Cache" />
         <PackageReference Include="Microsoft.AspNetCore.Antiforgery" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" />
         <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" />
@@ -29,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <!--<PackageReference Include="Kharazmi.AspNetCore.Cache"/>-->
+        <PackageReference Include="Kharazmi.AspNetCore.Cache"/>
     </ItemGroup>
 
 </Project>

@@ -61,6 +61,7 @@ namespace Kharazmi.AspNetCore.Core
 
             builder.Services.AddTransient<IDomainEventFactory, DomainEventFactory>();
 
+            builder.Services.AddTransient<InstanceCreator>();
             builder.Services.AddScoped<IAggregateFactory, AggregateFactory>();
 
             builder.Services.TryAddService<IEventStore, NullEventStore>(ServiceLifetime.Scoped);
