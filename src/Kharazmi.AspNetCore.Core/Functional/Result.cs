@@ -1,10 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.Validation;
+using Newtonsoft.Json;
 
 namespace Kharazmi.AspNetCore.Core.Functional
 {
@@ -27,7 +30,7 @@ namespace Kharazmi.AspNetCore.Core.Functional
 
         public static readonly string MessageModelIsProvidedForSuccess =
             "You attempted to create a success result, which cannot have an message, but a non-null string was passed to the constructor.";
-        
+
         public const string ExceptionMessage = "Can not complete its operations for some reason";
     }
 
@@ -36,84 +39,96 @@ namespace Kharazmi.AspNetCore.Core.Functional
     /// </summary>
     public class Result
     {
-        private static readonly Result _ok = new Result(false, "", "",
-            Enumerable.Empty<MessageModel>(), Enumerable.Empty<ValidationFailure>());
+        public const string NoDescription = "NO_DESCRIPTION";
+        public const string SucceedDescription = "SUCCEED";
+        public const string MaybeHasValueDescription = "MAYBE_HAS_VALUE";
+        public const string FailedDescription = "FAILED";
+
+        public static readonly FriendlyResultMessage NoDescriptionResultMessage = new(NoDescription);
+        public static readonly FriendlyResultMessage FailedResultMessage = new(FailedDescription);
+        public static readonly FriendlyResultMessage SucceedResultMessage = new(SucceedDescription);
+        public static readonly FriendlyResultMessage MaybeResultMessage = new(MaybeHasValueDescription);
+
+        private static readonly Result Success = new(false, SucceedResultMessage);
+        
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        internal readonly Lazy<HashSet<InternalResultMessage>> InternalMessages = new(() => []);
+        
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="failed"></param>
-        /// <param name="code"></param>
-        /// <param name="messages"></param>
-        /// <param name="failures"></param>
-        /// <param name="description"></param>
-        protected Result(
-            bool failed,
-            string description,
-            string code,
-            IEnumerable<MessageModel?> messages,
-            IEnumerable<ValidationFailure> failures)
+        /// <param name="friendlyMessage"></param>
+        protected internal Result(bool failed, FriendlyResultMessage friendlyMessage)
         {
             ResultId = Guid.NewGuid().ToString("N");
-            CreateAt = DateTime.Now.ToString("g");
-
-            var validationFailures = failures.AsReadOnly();
-            var fail = validationFailures.Any() || failed;
-
-            Failed = fail;
-            ResultType = fail ? "Error" : "Success";
-            Description = description;
-            Code = code;
-            Messages = messages.AsReadOnly();
-            ValidationMessages = validationFailures;
+            CreateAt = DateTime.UtcNow.ToString("g", DateTimeFormatInfo.InvariantInfo);
+            Failed = failed;
+            ResultType = failed ? "Failed" : "Succeed";
+            FriendlyMessage = friendlyMessage;
         }
+
 
         /// <summary>
         /// 
         /// </summary>
+        [JsonProperty, JsonInclude]
         public bool Failed { get; }
 
+        public string ResultType { get; }
+
         /// <summary></summary>
+        [JsonProperty, JsonInclude]
         public string ResultId { get; protected set; }
 
         /// <summary></summary>
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public string CreateAt { get; protected set; }
-        
-        /// <summary></summary>
-        public string MessageType { get; protected set; }
+
+        [JsonProperty, JsonInclude] public FriendlyResultMessage FriendlyMessage { get; }
 
         /// <summary></summary>
-        public string Code { get; protected set; }
+        [JsonProperty, JsonInclude]
+        public string RedirectToUrl { get; protected set; } = string.Empty;
 
         /// <summary></summary>
-        public string Description { get; protected set; }
+        [JsonProperty, JsonInclude]
+        public string JsHandler { get; protected set; } = string.Empty;
 
         /// <summary></summary>
-        public string ResultType { get; protected set; }
+        [JsonProperty, JsonInclude]
+        public string RequestPath { get; protected set; } = string.Empty;
+
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
+        public string TraceId { get; protected set; } = string.Empty;
 
         /// <summary></summary>
-        public string RedirectToUrl { get; protected set; }
+        [JsonProperty, JsonInclude]
+        public int ResponseStatus { get; protected set; }
 
-        /// <summary></summary>
-        public string JsHandler { get; protected set; }
-
-        /// <summary></summary>
-        public string RequestPath { get; protected set; }
-
-        [Newtonsoft.Json.JsonIgnore, JsonIgnore]
-        public string TraceId { get; protected set; }
-
-        /// <summary></summary>
-        public int Status { get; protected set; }
-        
-        [Newtonsoft.Json.JsonIgnore, JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore, System.Text.Json.Serialization.JsonIgnore]
         public Exception? Exception { get; protected set; }
 
-        public IReadOnlyList<MessageModel?> Messages { get; protected set; }
+        public HashSet<FriendlyResultMessage> Messages { get; } = [];
 
-        public IReadOnlyList<ValidationFailure> ValidationMessages { get; protected set; }
+        public HashSet<ValidationFailure> ValidationMessages { get; } = [];
 
-        public Result AddException(Exception? exception)
+        
+        public IReadOnlyCollection<InternalResultMessage> GetInternalMessages() => InternalMessages.Value.AsReadOnly();
+        
+        public Result WithInternalMessages(params IReadOnlyCollection<InternalResultMessage> messages)
+        {
+            if (messages == null) throw new ArgumentNullException(nameof(messages));
+            foreach (var message in messages)
+            {
+                InternalMessages.Value.Add(message);
+            }
+
+            return this;
+        }
+        
+        public Result WithException(Exception? exception)
         {
             if (exception != null)
             {
@@ -122,58 +137,39 @@ namespace Kharazmi.AspNetCore.Core.Functional
 
             return this;
         }
-        
-        [DebuggerStepThrough]
-        public Result WithMessages(IEnumerable<MessageModel?> messages)
-        {
-            Messages = messages.AsReadOnly();
-            return this;
-        }
 
         [DebuggerStepThrough]
-        public Result WithValidationMessages(IEnumerable<ValidationFailure> failures)
+        public Result WithMessages(params IReadOnlyCollection<FriendlyResultMessage> messages)
         {
-            ValidationMessages = failures.AsReadOnly();
-            return this;
-        }
+            if (messages is null)
+            {
+                throw new ArgumentNullException(nameof(messages));
+            }
 
-        [DebuggerStepThrough]
-        public Result AddMessage(string description, string code = "")
-        {
-            var errors = Messages.ToList();
-            errors.Add(MessageModel.For(description, code));
-            Messages = errors;
+            foreach (var message in messages)
+            {
+                Messages.Add(message);
+            }
+
             return this;
         }
 
         [DebuggerStepThrough]
-        public Result AddMessage(MessageModel? message)
+        public Result WithValidationMessages(params IReadOnlyCollection<ValidationFailure> failures)
         {
-            var messages = Messages.ToList();
-            if (message != null)
-                messages.Add(message);
+            if (failures is null)
+            {
+                throw new ArgumentNullException(nameof(failures));
+            }
 
-            Messages = messages;
+            foreach (var message in failures)
+            {
+                ValidationMessages.Add(message);
+            }
+
             return this;
         }
 
-        [DebuggerStepThrough]
-        public Result AddValidationMessage(ValidationFailure failure)
-        {
-            var failures = ValidationMessages.ToList();
-            if (failure != null)
-                failures.Add(failure);
-
-            ValidationMessages = failures;
-            return this;
-        }
-
-        public Result WithMessageType(string value)
-        {
-            MessageType = value;
-            return this;
-        }
-        
         /// <summary>
         /// 
         /// </summary>
@@ -211,135 +207,193 @@ namespace Kharazmi.AspNetCore.Core.Functional
 
         public Result WithStatus(int value)
         {
-            Status = value;
+            ResponseStatus = value;
             return this;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public Result UpdateResultType(string value)
-        {
-            ResultType = value;
-            return this;
-        }
 
         [DebuggerStepThrough]
-        public static Result Ok() => _ok;
+        public static Result Ok() => Success;
 
-        public static Result Ok(string description, string code = "")
-            => new Result(false, description, code,
-                Enumerable.Empty<MessageModel>(), Enumerable.Empty<ValidationFailure>());
-
-        public static Result Ok(MessageModel messageModel)
-            => new Result(false, messageModel.Description, messageModel.Code,
-                Enumerable.Empty<MessageModel>(), Enumerable.Empty<ValidationFailure>());
+        public static Result Ok(FriendlyResultMessage message) => new(false, message);
 
         [DebuggerStepThrough]
-        public static Result<T> Ok<T>(T value) => new Result<T>(value, false, "", "");
+        public static Result<T> Ok<T>(T value) => new(value, false, SucceedResultMessage);
 
-        public static Result<T> Ok<T>(T value, string description, string code = "") =>
-            new Result<T>(value, false, description, code);
-
-        public static Result<T> Ok<T>(T value, MessageModel messageModel) =>
-            new Result<T>(value, false, messageModel?.Description, messageModel?.Code);
-
-        public static Result<T> Empty<T>(string description= "", string code = "") =>
-            new Result<T>(Enumerable.Empty<T>().FirstOrDefault(), false, description, code);
-        
-        public static Result<T> Empty<T>(MessageModel messageModel = null) =>
-            new Result<T>(Enumerable.Empty<T>().FirstOrDefault(), false, messageModel?.Description, messageModel.Code);
+        public static Result<T> Ok<T>(T value, FriendlyResultMessage message) => new(value, false, message);
 
         [DebuggerStepThrough]
-        public static Result Fail(string description, string code = "")
-            => new Result(true, description, code, Enumerable.Empty<MessageModel>(),
-                Enumerable.Empty<ValidationFailure>());
+        public static Result Fail(string description, int code = 0)
+            => new(true, new FriendlyResultMessage(description, code));
 
         [DebuggerStepThrough]
-        public static Result Fail(MessageModel? messageModel)
-            => Fail(messageModel?.Description, messageModel?.Code);
-
-        [DebuggerStepThrough]
-        public static Result<T> Fail<T>(string description, string code = "")
-            => new Result<T>(default, true, description, code);
+        public static Result Fail(FriendlyResultMessage? friendlyMessage)
+            => new(true, friendlyMessage ?? FailedResultMessage);
 
 
         [DebuggerStepThrough]
-        public static Result<T> Fail<T>(MessageModel messageModel)
-            => Fail<T>(messageModel?.Description, messageModel?.Code);
+        public static Result<T> Fail<T>(string description, int code = 0)
+            => new(default, true, new FriendlyResultMessage(description, code));
+
+
+        [DebuggerStepThrough]
+        public static Result<T> Fail<T>(FriendlyResultMessage friendlyMessage)
+            => new(default, true, friendlyMessage);
 
 
         public static Result<T> MapToFail<T>(Result result)
         {
-            if (result == null)
-                return Fail<T>("Failed  mapping");
-            
-            return Fail<T>(result.Description, result.Code)
-                .WithMessages(result.Messages)
-                .WithValidationMessages(result.ValidationMessages)
+            if (result is null) throw new ArgumentNullException(nameof(result));
+
+            return Fail<T>(result.FriendlyMessage)
+                .WithMessages([.. result.Messages])
+                .WithValidationMessages([.. result.ValidationMessages])
                 .WithTraceId(result.TraceId)
-                .WithStatus(result.Status)
+                .WithStatus(result.ResponseStatus)
                 .WithJsHandler(result.JsHandler)
                 .WithRedirectUrl(result.RedirectToUrl)
                 .WithRequestPath(result.RequestPath)
-                .UpdateResultType(result.ResultType);
+                .WithException(result.Exception);
         }
 
         public static Result<T> MapToOk<T>(T value, Result result)
         {
-            if (result == null || value == null)
-                return Fail<T>("Failed  mapping");
-            
-            return Ok(value, result.Description, result.Code)
-                .WithMessages(result.Messages)
-                .WithValidationMessages(result.ValidationMessages)
+            if (value is null) throw new ArgumentNullException(nameof(value));
+            if (result is null) throw new ArgumentNullException(nameof(result));
+
+            return Ok(value, result.FriendlyMessage)
+                .WithMessages([.. result.Messages])
+                .WithValidationMessages([.. result.ValidationMessages])
                 .WithTraceId(result.TraceId)
-                .WithStatus(result.Status)
+                .WithStatus(result.ResponseStatus)
                 .WithJsHandler(result.JsHandler)
                 .WithRedirectUrl(result.RedirectToUrl)
-                .WithRequestPath(result.RequestPath)
-                .UpdateResultType(result.ResultType);
+                .WithRequestPath(result.RequestPath);
         }
 
         [DebuggerStepThrough]
-        public static Result Combine(string seperator, params Result[] results)
+        public static Result Combine(params Result[] results)
         {
+            if (results == null) throw new ArgumentNullException(nameof(results));
             var resultList = results.Where(x => !x.Failed).ToList();
 
-            if (!resultList.Any()) return Ok();
+            if (resultList.Count == 0) return Ok();
 
-            var message = string.Join(seperator, resultList.Select(x => x.Description).ToArray());
-            var code = string.Join(seperator, resultList.Select(x => x.Code).ToArray());
-            var messageType = string.Join(seperator, resultList.Select(x => x.MessageType).ToArray());
-            var errors = resultList.SelectMany(r => r.Messages).ToList();
-            var failures = resultList.SelectMany(r => r.ValidationMessages).ToList();
-
-            return Fail(message, code)
-                .WithMessageType(messageType)
+            var message = resultList[0].FriendlyMessage;
+            var errors = resultList.SelectMany(r => r.Messages).ToArray();
+            var failures = resultList.SelectMany(r => r.ValidationMessages).ToArray();
+            return Fail(message)
+                .WithMessages([.. resultList.Select(x => x.FriendlyMessage).Skip(1)])
                 .WithMessages(errors)
                 .WithValidationMessages(failures);
         }
 
-        [DebuggerStepThrough]
-        public static Result Combine(params Result[] results) => Combine(", ", results);
 
         [DebuggerStepThrough]
-        public static Result Combine<T>(params Result<T>[] results) => Combine(", ", results);
-
-        [DebuggerStepThrough]
-        public static Result Combine<T>(string seperator, params Result<T>[] results)
+        public static Result Combine<T>(params Result<T>[] results)
         {
-            var untyped = results.Select(result => (Result) result).ToArray();
-            return Combine(seperator, untyped);
+            var untyped = results.Select(Result (result) => result).ToArray();
+            return Combine(untyped);
         }
 
         public override string ToString()
         {
-            return !Failed
-                ? "Ok"
-                : $"Failed with NotificationId {Code} , Description {Description} ";
+            StringBuilder jsonBuilder = new("{");
+
+            jsonBuilder.AppendInvariant($"\"Failed\": {Failed.ToString().ToLowerInvariant()},");
+            jsonBuilder.AppendInvariant($"\"ResultType\": \"{ResultType}\",");
+            jsonBuilder.AppendInvariant($"\"ResultId\": \"{ResultId}\",");
+            jsonBuilder.AppendInvariant($"\"ResponseStatus\": {ResponseStatus},");
+
+            if (TraceId.IsNotEmpty())
+            {
+                jsonBuilder.AppendInvariant($"\"TraceId\":\"{TraceId}\",");
+            }
+
+            if (RequestPath.IsNotEmpty())
+            {
+                jsonBuilder.AppendInvariant($"\"RequestPath\":\"{RequestPath}\",");
+            }
+
+            if (RedirectToUrl.IsNotEmpty())
+            {
+                jsonBuilder.AppendInvariant($"\"RedirectToUrl\":\"{RedirectToUrl}\",");
+            }
+
+            if (JsHandler.IsNotEmpty())
+            {
+                jsonBuilder.AppendInvariant($"\"JsHandler\":\"{JsHandler}\",");
+            }
+
+
+            if (Messages.Count > 0)
+            {
+                var messages = Messages.GroupBy(x => x.MessageType).ToArray().AsSpan();
+                foreach (var groupedMessage in messages)
+                {
+                    var typeName = groupedMessage.Key;
+                    jsonBuilder.AppendInvariant($"\"{typeName}s\":[");
+
+                    foreach (var resultMessage in groupedMessage)
+                    {
+                        jsonBuilder.Append(resultMessage);
+                        jsonBuilder.Append(',');
+                    }
+
+                    RemoveLastChar();
+
+                    jsonBuilder.Append(']');
+                    jsonBuilder.Append(',');
+                }
+            }
+
+            if (ValidationMessages.Count > 0)
+            {
+                jsonBuilder.Append("\"ValidationMessages\":[");
+                foreach (var result in ValidationMessages)
+                {
+                    jsonBuilder.Append(result);
+                    jsonBuilder.Append(',');
+                }
+
+                RemoveLastChar();
+
+                jsonBuilder.Append(']');
+                jsonBuilder.Append(',');
+            }
+            
+            if (InternalMessages.Value.Count != 0)
+            {
+                jsonBuilder.Append("\"InternalMessages\":[");
+                foreach (var result in InternalMessages.Value)
+                {
+                    jsonBuilder.Append(result.ToString());
+                    jsonBuilder.Append(',');
+                }
+
+                RemoveLastChar();
+
+                jsonBuilder.Append(']');
+                jsonBuilder.Append(',');
+            }
+
+            if (Exception != null)
+            {
+                jsonBuilder.AppendInvariant($"\"Exceptions\": {Exception.AsJsonException()}");
+            }
+
+            jsonBuilder.Append('}');
+            
+            return jsonBuilder.ToString();
+
+            void RemoveLastChar()
+            {
+                var lastIndex = jsonBuilder.ToString().LastIndexOf(',');
+                if (lastIndex > 0)
+                {
+                    jsonBuilder.Remove(jsonBuilder.Length - 1, 1);
+                }
+            }
         }
     }
 
@@ -349,46 +403,50 @@ namespace Kharazmi.AspNetCore.Core.Functional
     /// <typeparam name="T"></typeparam>
     public class Result<T> : Result
     {
-        private readonly T _value;
+        private readonly T? _value;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="value"></param>
         /// <param name="failed"></param>
-        /// <param name="description"></param>
-        /// <param name="code"></param>
-        protected internal Result(T value, bool failed, string description, string code)
-            : base(failed, description, code, Enumerable.Empty<MessageModel>(), Enumerable.Empty<ValidationFailure>())
+        /// <param name="message"></param>
+        protected internal Result(T? value, bool failed, FriendlyResultMessage message) : base(failed, message)
         {
             _value = value;
         }
 
+        public bool HasValue() => !Failed && _value is not null;
 
         /// <summary>
         /// 
         /// </summary>
-        public T Value => !Failed ? _value : throw new InvalidOperationException("There is no value for failure.");
+        public T Value => HasValue() ? _value! : throw new InvalidOperationException("There is no value for failure.");
 
 
-        public new Result<T> AddException(Exception? exception)
+        public new Result<T> WithException(Exception? exception)
         {
-            if (exception != null)
-            {
-                Exception = Exception is null ? exception : new AggregateException(Exception, exception);
-            }
+            base.WithException(exception);
 
             return this;
         }
+        public new  Result<T> WithInternalMessages(params IReadOnlyCollection<InternalResultMessage> messages)
+        {
+            base.WithInternalMessages(messages);
+            return this;
+        }
+
+        
         /// <summary>
         /// 
         /// </summary>
         /// <param name="messages"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public new Result<T> WithMessages(IEnumerable<MessageModel?> messages)
+        public new Result<T> WithMessages(params IReadOnlyCollection<FriendlyResultMessage> messages)
         {
-            Messages = messages.AsReadOnly();
+            base.WithMessages(messages);
+
             return this;
         }
 
@@ -398,56 +456,9 @@ namespace Kharazmi.AspNetCore.Core.Functional
         /// <param name="failures"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public new Result<T> WithValidationMessages(IEnumerable<ValidationFailure> failures)
+        public new Result<T> WithValidationMessages(params IReadOnlyCollection<ValidationFailure> failures)
         {
-            ValidationMessages = failures.AsReadOnly();
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="description"></param>
-        /// <param name="code"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public new Result<T> AddMessage(string description, string code = "")
-        {
-            var messages = Messages.ToList();
-            messages.Add(MessageModel.For(description, code));
-            Messages = messages;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public new Result<T> AddMessage(MessageModel? error)
-        {
-            var errors = Messages.ToList();
-            if (error != null)
-                errors.Add(error);
-
-            Messages = errors;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="failure"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public new Result<T> AddValidationMessage(ValidationFailure failure)
-        {
-            var failures = ValidationMessages.ToList();
-            if (failure != null)
-                failures.Add(failure);
-
-            ValidationMessages = failures;
+            base.WithValidationMessages(failures);
             return this;
         }
 
@@ -503,18 +514,7 @@ namespace Kharazmi.AspNetCore.Core.Functional
         /// <returns></returns>
         public new Result<T> WithStatus(int value)
         {
-            Status = value;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        public new Result<T> UpdateResultType(string value)
-        {
-            ResultType = value;
+            ResponseStatus = value;
             return this;
         }
     }

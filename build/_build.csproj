@@ -16,6 +16,7 @@
     <PackageReference Include="coverlet.msbuild" />
     <PackageReference Include="Nuke.Common" />
     <PackageReference Include="Nuke.Utilities.IO.Globbing" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
 
   <ItemGroup>

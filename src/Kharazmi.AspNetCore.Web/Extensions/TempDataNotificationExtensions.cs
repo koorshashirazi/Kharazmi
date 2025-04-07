@@ -26,18 +26,18 @@ namespace Kharazmi.AspNetCore.Web.Extensions
             controller.TempData.AddNotification(notificationOptions);
         }
 
-        public static Controller AddSuccessMessage(this Controller controller, MessageModel message)
+        public static Controller AddSuccessMessage(this Controller controller, FriendlyResultMessage message)
         {
             controller.AddNotification(new NotificationOptions
             {
                 NotificationType = NotificationType.Success,
                 Message = message.Description,
-                Title = message.Code
+                Title = message.MessageType
             });
             return controller;
         }
 
-        public static Controller AddSuccessMessages(this Controller controller, List<MessageModel> messages)
+        public static Controller AddSuccessMessages(this Controller controller, List<FriendlyResultMessage> messages)
         {
             foreach (var message in messages)
             {
@@ -45,25 +45,25 @@ namespace Kharazmi.AspNetCore.Web.Extensions
                 {
                     NotificationType = NotificationType.Success,
                     Message = message.Description,
-                    Title = message.Code
+                    Title = message.MessageType
                 });
             }
 
             return controller;
         }
 
-        public static Controller AddInfoMessage(this Controller controller, MessageModel message)
+        public static Controller AddInfoMessage(this Controller controller, FriendlyResultMessage message)
         {
             controller.AddNotification(new NotificationOptions
             {
                 NotificationType = NotificationType.Info,
                 Message = message.Description,
-                Title = message.Code
+                Title = message.MessageType
             });
             return controller;
         }
 
-        public static Controller AddInfoMessages(this Controller controller, List<MessageModel> messages)
+        public static Controller AddInfoMessages(this Controller controller, List<FriendlyResultMessage> messages)
         {
             foreach (var message in messages)
             {
@@ -71,25 +71,25 @@ namespace Kharazmi.AspNetCore.Web.Extensions
                 {
                     NotificationType = NotificationType.Info,
                     Message = message.Description,
-                    Title = message.Code
+                    Title = message.MessageType
                 });
             }
 
             return controller;
         }
 
-        public static Controller AddErrorMessage(this Controller controller, MessageModel message)
+        public static Controller AddErrorMessage(this Controller controller, FriendlyResultMessage message)
         {
             controller.AddNotification(new NotificationOptions
             {
                 NotificationType = NotificationType.Error,
                 Message = message.Description,
-                Title = message.Code
+                Title = message.MessageType
             });
             return controller;
         }
 
-        public static Controller AddErrorMessages(this Controller controller, List<MessageModel> messages)
+        public static Controller AddErrorMessages(this Controller controller, List<FriendlyResultMessage> messages)
         {
             foreach (var message in messages)
             {
@@ -97,25 +97,25 @@ namespace Kharazmi.AspNetCore.Web.Extensions
                 {
                     NotificationType = NotificationType.Error,
                     Message = message.Description,
-                    Title = message.Code
+                    Title = message.MessageType
                 });
             }
 
             return controller;
         }
 
-        public static Controller AddWarningMessage(this Controller controller, MessageModel message)
+        public static Controller AddWarningMessage(this Controller controller, FriendlyResultMessage message)
         {
             controller.AddNotification(new NotificationOptions
             {
                 NotificationType = NotificationType.Warning,
                 Message = message.Description,
-                Title = message.Code
+                Title = message.MessageType
             });
             return controller;
         }
 
-        public static Controller AddWarningMessages(this Controller controller, List<MessageModel> messages)
+        public static Controller AddWarningMessages(this Controller controller, List<FriendlyResultMessage> messages)
         {
             foreach (var message in messages)
             {
@@ -123,7 +123,7 @@ namespace Kharazmi.AspNetCore.Web.Extensions
                 {
                     NotificationType = NotificationType.Warning,
                     Message = message.Description,
-                    Title = message.Code
+                    Title = message.MessageType
                 });
             }
 

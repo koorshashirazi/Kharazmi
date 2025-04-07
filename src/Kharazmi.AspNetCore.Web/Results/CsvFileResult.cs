@@ -11,7 +11,7 @@ namespace Kharazmi.AspNetCore.Web.Results
     {
         public CsvFileResult(IEnumerable data, string fileName) : base(GetData(data), "text/csv")
         {
-            Guard.ArgumentNotEmpty(fileName, nameof(fileName));
+            Ensure.ArgumentIsNotEmpty(fileName, nameof(fileName));
 
             FileDownloadName = fileName;
         }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Kharazmi.AspNetCore.Core.Domain.Events;
+using Kharazmi.AspNetCore.Core.Domain;
 
 namespace Kharazmi.AspNetCore.Core.EventSourcing
 {

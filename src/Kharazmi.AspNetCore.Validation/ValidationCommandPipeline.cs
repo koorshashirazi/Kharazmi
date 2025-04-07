@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
 using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.Functional;
@@ -14,31 +13,32 @@ using Newtonsoft.Json;
 
 namespace Kharazmi.AspNetCore.Validation
 {
-    internal class ValidationCommandPipeline<TCommand> : ICommandHandler<TCommand> where TCommand : ICommand
+    internal class ValidationDomainCommandPipeline<TCommand> : DomainCommandHandler<TCommand> where TCommand : class, IDomainCommand
     {
-        private readonly ICommandHandler<TCommand> _handler;
+        private readonly IDomainCommandHandler<TCommand> _handler;
         private readonly IValidator<TCommand> _validator;
-        private readonly ILogger<ValidationCommandPipeline<TCommand>> _logger;
+        private readonly ILogger<ValidationDomainCommandPipeline<TCommand>> _logger;
 
-        public ValidationCommandPipeline(
-            ICommandHandler<TCommand> handler,
+        public ValidationDomainCommandPipeline(
+            IDomainCommandHandler<TCommand> handler,
             IValidator<TCommand> validator,
-            ILogger<ValidationCommandPipeline<TCommand>> logger)
+            ILogger<ValidationDomainCommandPipeline<TCommand>> logger)
         {
             _handler = handler;
             _validator = validator;
             _logger = logger;
         }
 
-        public Task<Result> HandleAsync(TCommand command, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
+     
+
+        public override Task<Result> HandleAsync(TCommand command, CancellationToken token = default)
         {
-            _logger.LogInformation("\n==================== Validation Command ==================== ");
+            _logger.LogDebug("\n==================== Validation Command ==================== ");
 
             var failures = _validator.Validate(command)?.ToList() ?? new List<ValidationFailure>();
-            if (!failures.Any())
+            if (failures.Count == 0)
             {
-                return _handler.HandleAsync(command, domainContext, cancellationToken);
+                return _handler.HandleAsync(command, token);
             }
 
             var jsonCommand = JsonConvert.SerializeObject(command);

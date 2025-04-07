@@ -15,8 +15,8 @@ namespace Kharazmi.AspNetCore.Core.Specifications
         public static ISpecification<T> And<T>(this ISpecification<T> specification, ISpecification<T> other)
         {
             
-            Guard.ArgumentNotNull(specification, nameof(specification));
-            Guard.ArgumentNotNull(other, nameof(other));
+            Ensure.ArgumentIsNotNull(specification, nameof(specification));
+            Ensure.ArgumentIsNotNull(other, nameof(other));
 
             return new AndSpecification<T>(specification, other);
         }
@@ -32,8 +32,8 @@ namespace Kharazmi.AspNetCore.Core.Specifications
         /// <returns>The combined specification instance.</returns>
         public static ISpecification<T> Or<T>(this ISpecification<T> specification, ISpecification<T> other)
         {
-            Guard.ArgumentNotNull(specification, nameof(specification));
-            Guard.ArgumentNotNull(other, nameof(other));
+            Ensure.ArgumentIsNotNull(specification, nameof(specification));
+            Ensure.ArgumentIsNotNull(other, nameof(other));
 
             return new OrSpecification<T>(specification, other);
         }
@@ -49,8 +49,8 @@ namespace Kharazmi.AspNetCore.Core.Specifications
         /// <returns>The combined specification instance.</returns>
         public static ISpecification<T> AndNot<T>(this ISpecification<T> specification, ISpecification<T> other)
         {
-            Guard.ArgumentNotNull(specification, nameof(specification));
-            Guard.ArgumentNotNull(other, nameof(other));
+            Ensure.ArgumentIsNotNull(specification, nameof(specification));
+            Ensure.ArgumentIsNotNull(other, nameof(other));
 
             return new AndNotSpecification<T>(specification, other);
         }
@@ -62,7 +62,7 @@ namespace Kharazmi.AspNetCore.Core.Specifications
         /// <returns>The reversed specification instance.</returns>
         public static ISpecification<T> Not<T>(this ISpecification<T> specification)
         {
-            Guard.ArgumentNotNull(specification, nameof(specification));
+            Ensure.ArgumentIsNotNull(specification, nameof(specification));
 
             return new NotSpecification<T>(specification);
         }

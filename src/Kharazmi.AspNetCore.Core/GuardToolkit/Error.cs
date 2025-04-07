@@ -91,8 +91,8 @@ namespace Kharazmi.AspNetCore.Core.GuardToolkit
         [DebuggerStepThrough]
         public static Exception InvalidOperation<T>(string message, Exception innerException, Func<T> member)
         {
-            Guard.ArgumentNotNull(message, nameof(member));
-            Guard.ArgumentNotNull(member, nameof(member));
+            Ensure.ArgumentIsNotNull(message, nameof(member));
+            Ensure.ArgumentIsNotNull(member, nameof(member));
 
             return new InvalidOperationException(message.FormatCurrent(member.Method.Name), innerException);
         }

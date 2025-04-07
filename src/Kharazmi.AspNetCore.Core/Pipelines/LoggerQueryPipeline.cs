@@ -1,7 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Queries;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.Handlers;
@@ -10,35 +10,39 @@ using Newtonsoft.Json;
 
 namespace Kharazmi.AspNetCore.Core.Pipelines
 {
-    internal class LoggerQueryPipeline<TQuery, TResult> : IQueryHandler<TQuery, TResult>, IPipelineHandler
-        where TQuery : IQuery<TResult>
+    internal sealed class LoggerDomainQueryPipeline<TQuery, TResult> : IDomainQueryHandler<TQuery, TResult>, IPipelineHandler
+        where TQuery : IDomainQuery
     {
-        private readonly IQueryHandler<TQuery, TResult> _handler;
-        private readonly ILogger<LoggerQueryPipeline<TQuery, TResult>> _logger;
+        private readonly IDomainQueryHandler<TQuery, TResult> _handler;
+        private readonly ILogger<LoggerDomainQueryPipeline<TQuery, TResult>> _logger;
 
-        public LoggerQueryPipeline(
-            IQueryHandler<TQuery, TResult> handler,
-            ILogger<LoggerQueryPipeline<TQuery, TResult>> logger)
+        public LoggerDomainQueryPipeline(
+            IDomainQueryHandler<TQuery, TResult> handler,
+            ILogger<LoggerDomainQueryPipeline<TQuery, TResult>> logger)
         {
             _handler = handler;
             _logger = logger;
         }
 
-        public async Task<Result<TResult>> HandleAsync(TQuery query, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
+        private void Print(string jsonQuery)
         {
-            var eventType = query.GetType().GetGenericTypeName();
+            _logger.LogDebug("Query: {JaonQuery}", jsonQuery);
+        }
+
+        public async Task<Result<TResult>> HandleAsync(TQuery query, CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            if (query is null) throw new ArgumentNullException(nameof(query));
+            var typeName = query.GetType().GetGenericTypeName();
 
             var jsonQuery =
                 $"\n=============== Executing Query ================\n{JsonConvert.SerializeObject(query, Formatting.Indented)}\n";
-            var jsonMessageContext =
-                $"\n=============== With Message Context ================\n{JsonConvert.SerializeObject(domainContext, Formatting.Indented)}\n";
+            Print(jsonQuery);
+            Print(jsonQuery);
 
-            Print(jsonQuery, jsonMessageContext);
+            var result = await _handler.HandleAsync(query, token).ConfigureAwait(false);
 
-            var result = await _handler.HandleAsync(query, domainContext, cancellationToken).ConfigureAwait(false);
-
-            Print($"\n=============== Executed {eventType} ================");
+            Print($"\n=============== Executed {typeName} ================");
 
             Print($"\nResult failed: {result.Failed}");
 
@@ -48,7 +52,7 @@ namespace Kharazmi.AspNetCore.Core.Pipelines
 
                 foreach (var error in result.Messages)
                 {
-                    Print($"\n\t{error.Code}\n\t{error.Description}");
+                    Print($"\n\t{error.MessageType}\n\t{error.Description}");
                 }
 
                 Print($"\nFailures:");
@@ -59,14 +63,6 @@ namespace Kharazmi.AspNetCore.Core.Pipelines
             }
 
             return result;
-        }
-
-        private void Print(string jsonCommand, string jsonMessageContext = "")
-        {
-            if (_logger == null) return;
-            _logger.LogInformation(jsonCommand);
-            if (jsonMessageContext.IsNotEmpty())
-                _logger.LogInformation(jsonMessageContext);
         }
     }
 }

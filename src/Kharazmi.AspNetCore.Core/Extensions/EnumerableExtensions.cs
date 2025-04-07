@@ -55,9 +55,9 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         //    Func<TSource, TKey> keySelector,
         //    Func<TSource, TValue> valueSelector)
         //{
-        //    Guard.ThrowIfIsNull(() => source);
-        //    Guard.ThrowIfIsNull(() => keySelector);
-        //    Guard.ThrowIfIsNull(() => valueSelector);
+        //    Ensure.ThrowIfIsNull(() => source);
+        //    Ensure.ThrowIfIsNull(() => keySelector);
+        //    Ensure.ThrowIfIsNull(() => valueSelector);
 
         //    var map = new Multimap<TKey, TValue>();
 
@@ -78,7 +78,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <param name="other"></param>
         public static void AddRange(this NameValueCollection initial, NameValueCollection other)
         {
-            Guard.ArgumentNotNull(initial, nameof(initial));
+            Ensure.ArgumentIsNotNull(initial, nameof(initial));
             if (other == null)
                 return;
 
@@ -216,7 +216,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         public static ReadOnlyCollection<T> AsReadOnly<T>(this IEnumerable<T> source)
         {
             if (source == null) return DefaultReadOnlyCollection<T>.Empty;
-            var enumerable = source as T[] ?? source.ToArray();
+            var enumerable = source as T[] ?? [.. source];
             if (!enumerable.Any())
                 return DefaultReadOnlyCollection<T>.Empty;
 

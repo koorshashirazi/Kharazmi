@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Kharazmi.AspNetCore.Core.GuardToolkit;
 
 namespace Kharazmi.AspNetCore.Core.Extensions
 {
@@ -9,6 +10,20 @@ namespace Kharazmi.AspNetCore.Core.Extensions
     /// </summary>
     internal static class StringBuilderExtensions
     {
+        public static StringBuilder AppendInvariant(this StringBuilder sb, FormattableString formattableString)
+        {
+            Ensure.ArgumentIsNotNull(sb);
+            Ensure.ArgumentIsNotNull(formattableString);
+            return sb.Append(formattableString.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        public static StringBuilder AppendLineInvariant(this StringBuilder sb, FormattableString formattableString)
+        {
+            Ensure.ArgumentIsNotNull(sb);
+            Ensure.ArgumentIsNotNull(formattableString);
+            return sb.AppendLine(formattableString.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
         /// <summary>
         ///     Appends a <see cref="string" /> representing a meta tag with the specified name and content attribute value.
         /// </summary>

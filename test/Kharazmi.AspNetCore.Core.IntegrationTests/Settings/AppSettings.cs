@@ -1,6 +1,5 @@
 ﻿using Kharazmi.AspNetCore.Core.Configuration;
 using Kharazmi.MessageBroker;
-using Microsoft.AspNetCore.Builder;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Settings
 {

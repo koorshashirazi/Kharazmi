@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Kharazmi.AspNetCore.Core.Application.Models;
@@ -42,7 +43,7 @@ namespace Kharazmi.AspNetCore.Web.Extensions
         public static List<ModelStateViewModel> GetModelStateViewModels(this ModelStateDictionary modelState)
         {
             return modelState.GetErrorList()
-                .Select(error => new ModelStateViewModel {Type = ModelStateType.Error, Message = error}).ToList();
+                .Select(error => new ModelStateViewModel { Type = ModelStateType.Error, Message = error }).ToList();
         }
 
         /// <summary>
@@ -62,23 +63,25 @@ namespace Kharazmi.AspNetCore.Web.Extensions
         /// <param name="result">The validation result to store</param>
         /// <param name="modelState">The ModelStateDictionary to store the errors in.</param>
         /// <param name="prefix">An optional prefix. If ommitted, the property names will be the keys. If specified, the prefix will be concatenatd to the property name with a period. Eg "user.Key"</param>
-        public static void AddModelError(this ModelStateDictionary modelState, Result result, string prefix = null)
+        public static void AddModelError(this ModelStateDictionary modelState, Result result, string? prefix = null)
         {
+            if (modelState == null) throw new ArgumentNullException(nameof(modelState));
             if (!result.Failed) return;
 
-            if (result.Description.IsNotEmpty())
-                modelState.AddModelError(prefix ?? result.Code, result.Description);
+            var modelKey = prefix ?? result.FriendlyMessage.MessageType;
+
+            modelState.AddModelError(modelKey, result.FriendlyMessage.Description);
 
 
             foreach (var identityError in result.Messages)
-                modelState.AddModelError(identityError.Code, identityError.Description);
-         
+                modelState.AddModelError(identityError.MessageType, identityError.Description);
+
             foreach (var failure in result.ValidationMessages)
             {
                 var key = prefix.IsEmpty() || failure.PropertyName.IsEmpty()
                     ? failure.PropertyName
                     : prefix + "." + failure.PropertyName;
-                
+
                 if (!modelState.ContainsKey(key) ||
                     modelState[key].Errors.All(i => i.ErrorMessage != failure.ErrorMessage))
                 {

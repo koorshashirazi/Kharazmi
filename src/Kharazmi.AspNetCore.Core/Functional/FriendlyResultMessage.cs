@@ -1,47 +1,57 @@
-using System;
+﻿using System;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
-namespace Kharazmi.AspNetCore.Core.Functional;
-
-public readonly record struct FriendlyResultMessage
+namespace Kharazmi.AspNetCore.Core.Functional
 {
-    public FriendlyResultMessage()
+    /// <summary>
+    /// 
+    /// </summary>
+    public readonly record struct FriendlyResultMessage
     {
-        Description = string.Empty;
-    }
+        public FriendlyResultMessage()
+        {
+            Description = string.Empty;
+        }
 
-    [System.Text.Json.Serialization.JsonConstructor, Newtonsoft.Json.JsonConstructor]
-    public FriendlyResultMessage(string description, int descriptionCode = 0)
-    {
-        Description = description ?? throw new ArgumentNullException(nameof(description));
-        DescriptionCode = descriptionCode;
-    }
+        [System.Text.Json.Serialization.JsonConstructor,  Newtonsoft.Json.JsonConstructor]
+        public FriendlyResultMessage(string description, int code = 0)
+        {
+            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Code = code;
+        }
+
+        public FriendlyResultMessage(ReadOnlySpan<char> description, int code = 0)
+        {
+            Description = new string(description.ToArray());
+            Code = code;
+        }
+
+        [JsonProperty, JsonInclude] public string Description { get;  }
+        [JsonProperty, JsonInclude] public string MessageType { get; } = nameof(FriendlyResultMessage);
+        [JsonProperty, JsonInclude] public int Code { get;  }
+
+        public static FriendlyResultMessage With(string description) => new(description);
+
+        public static FriendlyResultMessage With(string description, int descriptionCode) =>
+            new(description, descriptionCode);
 
 
-    [JsonProperty, JsonInclude] public string Description { get; }
-    [JsonProperty, JsonInclude] public string MessageType { get; } = nameof(FriendlyResultMessage);
-    [JsonProperty, JsonInclude] public int DescriptionCode { get; }
-
-    public static FriendlyResultMessage With(string description) => new(description);
-
-    public static FriendlyResultMessage With(string description, int descriptionCode) =>
-        new(description, descriptionCode);
-
-
-    public override string ToString()
-    {
+        public override string ToString()
+        {
 #if DEBUG
-        return $$"""
-                 { 
-                    "Description": "{{Description}}",
-                    "DescriptionCode": "{{DescriptionCode}}"
-                 }
-                 """;
+            return $$"""
+                     { 
+                        "Description": "{{Description}}",
+                        "Code": {{Code}}
+                     }
+                     """;
 #else
         return $$"""
-                 { "Description": "{{Description}}", "DescriptionCode": "{{DescriptionCode}}" }
+                 { "Description": "{{Description}}", "Code": {{Code}} }
                  """;
 #endif
+        }
     }
 }

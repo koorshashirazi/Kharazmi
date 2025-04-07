@@ -26,7 +26,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
             Func<TAttribute, bool> predicate)
             where TAttribute : Attribute
         {
-            Guard.ArgumentNotNull(predicate, nameof(predicate));
+            Ensure.ArgumentIsNotNull(predicate, nameof(predicate));
 
             var attributes = pd.Attributes.OfType<TAttribute>().Where(predicate);
             return attributes;
@@ -34,7 +34,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static PropertyDescriptor GetProperty(this ICustomTypeDescriptor td, string name)
         {
-            Guard.ArgumentNotEmpty(name, nameof(name));
+            Ensure.ArgumentIsNotEmpty(name, nameof(name));
             return td.GetProperties().Find(name, true);
             //.Cast<PropertyDescriptor>()
             //.FirstOrDefault(p => p.AggregateType.Equals(name, StringComparison.InvariantCultureIgnoreCase));
@@ -51,7 +51,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
             Func<TAttribute, bool> predicate)
             where TAttribute : Attribute
         {
-            Guard.ArgumentNotNull(predicate, nameof(predicate));
+            Ensure.ArgumentIsNotNull(predicate, nameof(predicate));
 
             return td.GetProperties()
                 .Cast<PropertyDescriptor>()

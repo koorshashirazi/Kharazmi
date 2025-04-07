@@ -53,7 +53,7 @@ namespace Kharazmi.AspNetCore.Validation
         {
             validationBuilder.WithFluentValidation();
             builder.Services
-                .Decorate(typeof(ICommandHandler<>), typeof(ValidationCommandPipeline<>));
+                .Decorate(typeof(IDomainCommandHandler<>), typeof(ValidationDomainCommandPipeline<>));
             return builder;
         }
 

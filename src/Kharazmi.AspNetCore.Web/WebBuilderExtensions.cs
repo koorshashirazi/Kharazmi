@@ -17,5 +17,7 @@ namespace Kharazmi.AspNetCore.Web
             services.AddHttpContextAccessor();
             return new WebBuilder(services);
         }
+        
+       
     }
 }

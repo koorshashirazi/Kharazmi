@@ -5,10 +5,9 @@ using Newtonsoft.Json;
 namespace Kharazmi.AspNetCore.Core.Domain
 {
     [Serializable]
-    public class DomainContext 
+    public class DomainContext
     {
         public string Id { get; private set; }
-        public string ActionName { get; }
         public string UserId { get; }
         public string ResourceId { get; private set; }
         public string Resource { get; private set; }
@@ -24,17 +23,15 @@ namespace Kharazmi.AspNetCore.Core.Domain
         {
         }
 
-        private DomainContext(string id, string actionName = "")
+        private DomainContext(string id)
         {
             Id = id.IsEmpty() ? Guid.NewGuid().ToString("N") : id;
-            ActionName = actionName;
             Culture = System.Threading.Thread.CurrentThread.CurrentCulture.Name;
         }
 
         [JsonConstructor]
         private DomainContext(
             string id,
-            string name,
             string userId,
             string resourceId,
             string resource,
@@ -46,8 +43,6 @@ namespace Kharazmi.AspNetCore.Core.Domain
             int retries)
         {
             Id = id.IsEmpty() ? Guid.NewGuid().ToString("N") : id;
-            if (name.IsNotEmpty())
-                ActionName = name;
             UserId = userId;
             ResourceId = resourceId;
             Resource = resource;
@@ -60,26 +55,23 @@ namespace Kharazmi.AspNetCore.Core.Domain
             CreatedAt = DateTime.UtcNow;
         }
 
-        public static DomainContext Empty
-            => new DomainContext();
+        public static DomainContext Empty => new();
 
-        public static DomainContext Create<T>(string id, string userId, string resourceId, string resource,
+        public static DomainContext Create(string id, string userId, string resourceId, string resource,
             string culture,
             string traceId, string connectionId, string origin, string requestPath, int retries = 0)
-            => new DomainContext(id, typeof(T).Name, userId, resourceId, resource, culture, traceId, connectionId,
+            => new(id, userId, resourceId, resource, culture, traceId, connectionId,
                 origin, requestPath,
                 retries);
 
-        public static DomainContext FromId(string id)
-            => new DomainContext(id);
+        public static DomainContext FromId(string id) => new(id);
 
-        public static DomainContext From<T>(DomainContext context)
-            => Create<T>(context.Id, context.UserId, context.ResourceId, context.Resource, context.Culture,
+        public static DomainContext From(DomainContext context)
+            => Create(context.Id, context.UserId, context.ResourceId, context.Resource, context.Culture,
                 context.TraceId, context.ConnectionId, context.Origin, context.RequestPath,
                 context.Retries);
 
-        public static DomainContext For(string id, string actionName)
-            => new DomainContext(id, actionName);
+        public static DomainContext For(string id) => new(id);
 
 
         public DomainContext UpdateId(string id)
@@ -102,10 +94,10 @@ namespace Kharazmi.AspNetCore.Core.Domain
 
         public DomainContext UpdateRetrying(int retry)
         {
-            Retries =retry;
+            Retries = retry;
             return this;
-        }   
-        
+        }
+
         public DomainContext IncreaseRetrying()
         {
             Retries += 1;

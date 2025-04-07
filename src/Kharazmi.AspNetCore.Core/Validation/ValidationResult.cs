@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,7 +34,7 @@ namespace Kharazmi.AspNetCore.Core.Validation
         /// </remarks>
         public ValidationResult(IEnumerable<ValidationFailure> failures)
         {
-            Errors = failures.Where(failure => failure != null).ToList();
+            Errors = [.. failures.Where(failure => failure != null)];
         }
 
         /// <summary>

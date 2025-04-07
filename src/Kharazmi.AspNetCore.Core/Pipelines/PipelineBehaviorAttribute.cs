@@ -14,7 +14,7 @@ namespace Kharazmi.AspNetCore.Core.Pipelines
         /// <param name="behaviorTypes"></param>
         public PipelineBehaviorAttribute(params Type[] behaviorTypes)
         {
-            BehaviorTypes = behaviorTypes;
+            BehaviorTypes = behaviorTypes ?? throw new ArgumentNullException(nameof(behaviorTypes));
         }
 
         /// <summary>

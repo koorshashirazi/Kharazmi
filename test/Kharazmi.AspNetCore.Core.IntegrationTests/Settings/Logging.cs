@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-
- namespace Kharazmi.AspNetCore.Core.IntegrationTests.Settings
+﻿namespace Kharazmi.AspNetCore.Core.IntegrationTests.Settings
 {
     public class Logging
     {

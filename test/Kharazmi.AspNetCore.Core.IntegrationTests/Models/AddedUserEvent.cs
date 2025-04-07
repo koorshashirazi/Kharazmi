@@ -1,5 +1,4 @@
-﻿using System;
-using Kharazmi.AspNetCore.Core.Domain.Events;
+﻿using Kharazmi.AspNetCore.Core.Domain;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Models
 {

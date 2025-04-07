@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.Validation;
@@ -17,9 +18,10 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <returns></returns>
         public static Result ToResult(this IEnumerable<ValidationFailure> failures)
         {
-            failures = failures?.ToList();
+            if (failures == null) throw new ArgumentNullException(nameof(failures));
+            var validationFailures = failures.ToArray();
 
-            return failures != null && !failures.Any() ? Result.Ok() : Result.Fail(string.Empty, "").WithValidationMessages(failures);
+            return validationFailures.Length <= 0 ? Result.Ok() : Result.Fail(string.Empty).WithValidationMessages(validationFailures);
         }
 
         /// <summary>
@@ -29,7 +31,10 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <returns></returns>
         public static Result ToResult(this List<ValidationFailure> failures)
         {
-            return failures != null && !failures.Any() ? Result.Ok() : Result.Fail(string.Empty).WithValidationMessages(failures);
+            if (failures == null) throw new ArgumentNullException(nameof(failures));
+            var validationFailures = failures.ToArray();
+
+            return validationFailures.Length <= 0 ? Result.Ok() : Result.Fail(string.Empty).WithValidationMessages(validationFailures);
         }
     }
 }

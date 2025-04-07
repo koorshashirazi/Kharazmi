@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Dispatchers;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
 using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Extensions;
@@ -58,7 +57,7 @@ namespace Kharazmi.MessageBroker
         /// <typeparam name="TCommand"></typeparam>
         /// <returns></returns>
         public IBusSubscriber SubscribeCommand<TCommand>(Func<TCommand, FrameworkException, RejectEvent> onError = null,
-            CancellationToken cancellationToken = default) where TCommand : ICommand
+            CancellationToken cancellationToken = default) where TCommand : class, IDomainCommand
         {
             _busClient.SubscribeAsync<TCommand, DomainContext>(async (command, domainContext) =>
             {
@@ -66,7 +65,7 @@ namespace Kharazmi.MessageBroker
                 var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainDispatcher>();
 
                 return await TryHandleAsync(command, domainContext,
-                    async () => await dispatcher.SendCommandAsync(command, domainContext, cancellationToken).ConfigureAwait(false), onError,
+                    async () => await dispatcher.SendAsync(command, cancellationToken).ConfigureAwait(false), onError,
                     cancellationToken).ConfigureAwait(false);
             }, UseThrottledConsume, token: cancellationToken);
 
@@ -85,7 +84,7 @@ namespace Kharazmi.MessageBroker
             MessageConfiguration messageConfiguration = null,
             Func<TCommand, FrameworkException, RejectEvent> onError = null,
             CancellationToken cancellationToken = default)
-            where TCommand : ICommand
+            where TCommand : class, IDomainCommand
         {
             SubscribeFrom<TCommand>(messageConfiguration, async (command, domainContext) =>
             {
@@ -93,7 +92,7 @@ namespace Kharazmi.MessageBroker
                 var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainDispatcher>();
 
                 return await TryHandleAsync(command, domainContext,
-                    async () => await dispatcher.SendCommandAsync(command, domainContext, cancellationToken).ConfigureAwait(false),
+                    async () => await dispatcher.SendAsync(command, cancellationToken).ConfigureAwait(false),
                     onError, cancellationToken).ConfigureAwait(false);
             }, cancellationToken);
 
@@ -114,14 +113,14 @@ namespace Kharazmi.MessageBroker
         {
             if (typeof(TEvent).IsAbstract)
                 throw new RabbitMqException(typeof(TEvent).FullName + " must be non abstract class");
-            
+
             _busClient.SubscribeAsync<TEvent, DomainContext>(async (@event, domainContext) =>
             {
                 using var scope = _serviceProvider.CreateScope();
                 var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainDispatcher>();
 
                 return await TryHandleAsync(@event, domainContext,
-                    async () => await dispatcher.RaiseEventAsync(@event, domainContext, cancellationToken).ConfigureAwait(false), onError,
+                    async () => await dispatcher.RaiseAsync(@event, cancellationToken).ConfigureAwait(false), onError,
                     cancellationToken).ConfigureAwait(false);
             }, UseThrottledConsume, token: cancellationToken);
 
@@ -145,14 +144,14 @@ namespace Kharazmi.MessageBroker
         {
             if (typeof(TEvent).IsAbstract)
                 throw new RabbitMqException(typeof(TEvent).FullName + " must be non abstract class");
-            
+
             SubscribeFrom<TEvent>(messageConfiguration, async (@event, domainContext) =>
             {
                 using var scope = _serviceProvider.CreateScope();
                 var dispatcher = scope.ServiceProvider.GetRequiredService<IDomainDispatcher>();
 
                 return await TryHandleAsync(@event, domainContext,
-                    async () => await dispatcher.RaiseEventAsync(@event, domainContext, cancellationToken).ConfigureAwait(false),
+                    async () => await dispatcher.RaiseAsync(@event, cancellationToken).ConfigureAwait(false),
                     onError, cancellationToken).ConfigureAwait(false);
             }, cancellationToken);
 
@@ -302,7 +301,8 @@ namespace Kharazmi.MessageBroker
 
             if (_options.WithRequeuing)
             {
-                return await TryHandleWithRequeuingAsync(message, domainContext, handle, onError, cancellationToken).ConfigureAwait(false);
+                return await TryHandleWithRequeuingAsync(message, domainContext, handle, onError, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             var currentRetry = 0;
@@ -422,8 +422,8 @@ namespace Kharazmi.MessageBroker
                         ctx.UseMessageContext(domainContext), token: cancellationToken).ConfigureAwait(false);
 
                     throw DomainException.For($"Unable to handle a message: '{messageName}' " +
-                                                 $"with domain id: '{domainContext.Id}' " +
-                                                 $"after {domainContext.Retries} retries.", exception);
+                                              $"with domain id: '{domainContext.Id}' " +
+                                              $"after {domainContext.Retries} retries.", exception);
                 }
 
                 _logger.LogInformation($"Unable to handle a message: '{messageName}' " +

@@ -1,7 +1,6 @@
-using System;
 using System.Globalization;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Domain.Aggregates;
-using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.EventSourcing;
 using Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Events;
 using Moq;

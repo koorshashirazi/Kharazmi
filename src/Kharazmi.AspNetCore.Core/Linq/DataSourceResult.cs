@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -43,7 +43,7 @@ namespace Kharazmi.AspNetCore.Core.Linq
         private static Type[] GetKnownTypes()
         {
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName.StartsWith("DynamicClasses"));
-            return assembly == null ? new Type[0] : assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass")).ToArray();
+            return assembly == null ? new Type[0] : [.. assembly.GetTypes().Where(t => t.Name.StartsWith("DynamicClass"))];
         }
 
     }

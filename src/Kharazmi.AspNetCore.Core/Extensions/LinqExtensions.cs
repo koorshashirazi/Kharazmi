@@ -19,7 +19,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static MemberInfo ExtractMemberInfo(this LambdaExpression propertyAccessor)
         {
-            Guard.ArgumentNotNull(propertyAccessor, nameof(propertyAccessor));
+            Ensure.ArgumentIsNotNull(propertyAccessor, nameof(propertyAccessor));
 
             MemberInfo info;
             try

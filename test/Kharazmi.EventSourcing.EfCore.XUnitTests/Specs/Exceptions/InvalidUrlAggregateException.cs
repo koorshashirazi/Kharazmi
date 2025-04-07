@@ -1,6 +1,4 @@
-﻿using System;
-
- namespace Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Exceptions
+﻿namespace Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Exceptions
 {
     public class InvalidUrlAggregateException : AggregateException
     {

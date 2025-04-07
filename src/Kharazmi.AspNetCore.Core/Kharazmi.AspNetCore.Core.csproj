@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Title>Kharazmi.AspNetCore.Core</Title>
@@ -9,26 +9,33 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HtmlAgilityPack"/>
-        <PackageReference Include="Microsoft.CSharp"/>
-        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json"/>
-        <PackageReference Include="Microsoft.Extensions.Logging"/>
-        <PackageReference Include="Nito.AsyncEx"/>
-        <PackageReference Include="Castle.Core"/>
-        <PackageReference Include="Newtonsoft.Json"/>
-        <PackageReference Include="Scrutor"/>
-        <PackageReference Include="System.Drawing.Common"/>
-        <PackageReference Include="System.ComponentModel.Annotations"/>
-        <PackageReference Include="System.Collections.Immutable"/>
-        <PackageReference Include="System.Linq.Dynamic.Core"/>
+        
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+        <PackageReference Include="Castle.Core" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <PackageReference Include="Scrutor" />
+        <PackageReference Include="System.Linq.Dynamic.Core" />
     </ItemGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <PlatformTarget>anycpu</PlatformTarget>
     </PropertyGroup>
-    
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+
+        <None Remove="unit_test_generator_config.json" />
+        <AdditionalFiles Include="unit_test_generator_config.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </AdditionalFiles>
+
+        <PackageReference Include="PersianCat.Generator.XUnitTest.Common" />
+        <PackageReference Include="PersianCat.Generator.XUnitTest" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>Kharazmi.AspNetCore.Core.XUnitTest</_Parameter1>

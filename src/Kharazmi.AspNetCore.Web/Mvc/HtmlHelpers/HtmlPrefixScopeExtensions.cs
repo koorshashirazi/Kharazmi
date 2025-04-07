@@ -26,7 +26,7 @@ namespace Kharazmi.AspNetCore.Web.Mvc.HtmlHelpers
         public static IDisposable BeginCollectionItem<TModel>(this IHtmlHelper<TModel> htmlHelper,
             string collectionName)
         {
-            Guard.ArgumentNotEmpty(collectionName, nameof(collectionName));
+            Ensure.ArgumentIsNotEmpty(collectionName, nameof(collectionName));
 
             var htmlFieldPrefix = htmlHelper.ViewData.TemplateInfo.HtmlFieldPrefix;
             if (htmlFieldPrefix.Contains(collectionName))

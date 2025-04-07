@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,9 +18,9 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static List<string> GetColumnList(this Type type)
         {
-            return type
+            return [.. type
                 .GetProperties()
-                .Select(p => p.Name).ToList();
+                .Select(p => p.Name)];
         }
 
         public static string GetColumns(this Type type, Func<PropertyInfo, bool> predicate)
@@ -35,10 +35,10 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static List<string> GetColumnList(this Type type, Func<PropertyInfo, bool> predicate)
         {
-            return type
+            return [.. type
                 .GetProperties(BindingFlags.GetField)
                 .Where(predicate)
-                .Select(p => p.Name).ToList();
+                .Select(p => p.Name)];
         }
 
         public static string GetColumn(this Type type, string columnName)

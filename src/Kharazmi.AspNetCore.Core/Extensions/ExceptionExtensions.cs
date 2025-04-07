@@ -5,12 +5,19 @@ using System.Linq;
 using System.Text;
 using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Functional;
+using Kharazmi.AspNetCore.Core.Models;
 using Newtonsoft.Json;
 
 namespace Kharazmi.AspNetCore.Core.Extensions
 {
     public static partial class Core
     {
+        public static string AsJsonException(this Exception exception)
+        {
+            var collectExceptions = ExceptionMessage.FromException(exception);
+            return JsonConvert.SerializeObject(collectExceptions);
+        }
+        
         /// <summary>
         /// 
         /// </summary>
@@ -47,30 +54,9 @@ namespace Kharazmi.AspNetCore.Core.Extensions
             public IEnumerable<StackFrameModel> StackFrameModel { get; set; }
 
             /// <summary> </summary>
-            public IEnumerable<MessageModel?> ExceptionErrors { get; set; }
+            public IEnumerable<FrameworkException> ExceptionErrors { get; set; }
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IEnumerable<MessageModel?> CollectExceptionIncludeInnerException<T>(this T e)
-            where T : Exception, new()
-        {
-            var exceptionErrors = new List<MessageModel?>();
-            while (true)
-            {
-                if (e == null) return exceptionErrors;
-                exceptionErrors.Add(MessageModel.For(e.Message, typeof(T).Name));
-                if (e.InnerException == null) return exceptionErrors;
-                exceptionErrors.Add(MessageModel.For("\r\nInnerException: " + e.InnerException.Message,
-                    e.GetType().Name));
-                e = (T) e.InnerException;
-            }
-        }
+     
 
         /// <summary>
         /// 
@@ -86,90 +72,6 @@ namespace Kharazmi.AspNetCore.Core.Extensions
                 null => throw new ArgumentNullException(name),
                 _ => o,
             };
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exception"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T WithDetailsJsonException<T>(this T exception) where T : Exception, new()
-        {
-            var stacktrace = (new StackTrace(exception, true).GetFrames() ??
-                              new[] {new StackFrame(1, true)})
-                .Where(x => x.GetFileName() != null);
-
-            var stackFrameModels = (from stackFrame in stacktrace
-                let methodBase = stackFrame.GetMethod()
-                let fileName = stackFrame.GetFileName()
-                let lineNumber = stackFrame.GetFileLineNumber()
-                let memberInfo = methodBase?.DeclaringType
-                select new StackFrameModel
-                {
-                    FileName = fileName,
-                    ClassName = memberInfo?.FullName,
-                    MethodName = memberInfo?.Name,
-                    LinNumber = lineNumber
-                }).ToList();
-
-            var details = new DetailsError
-            {
-                StackFrameModel = stackFrameModels,
-                CurrentDate = DateTime.Now.ToShortDateString(),
-                ExceptionErrors = exception.CollectExceptionIncludeInnerException()
-            };
-
-            var jsonDetails = JsonConvert.SerializeObject(details, Formatting.Indented, new JsonSerializerSettings
-            {
-                MaxDepth = 10,
-                NullValueHandling = NullValueHandling.Ignore
-            });
-
-            return (T) Activator.CreateInstance(typeof(T), jsonDetails);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exception"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T WithDetailsException<T>(this T exception) where T : Exception, new()
-        {
-            var exceptionMessage = new StringBuilder();
-            var frame = new StackFrame(1, true);
-            var methodBase = frame.GetMethod();
-            var fileName = frame.GetFileName();
-            var lineNumber = frame.GetFileLineNumber();
-            var currentDateTime = DateTime.Now.ToShortDateString();
-
-            var memberInfo = methodBase?.DeclaringType;
-            var exceptionErrors = exception.CollectExceptionIncludeInnerException();
-
-            exceptionMessage.Append(LineLogSeparator).AppendLine();
-
-            exceptionMessage.Append($"Start an error has occurred: {currentDateTime}").AppendLine();
-
-            exceptionMessage.Append($"Exception Type: {typeof(T).Name}").AppendLine();
-
-            exceptionMessage.Append($"Class: {memberInfo?.FullName ?? ""}").AppendLine();
-            exceptionMessage.Append($"Method: {memberInfo?.Name}").AppendLine();
-            exceptionMessage.Append($"FileName: {fileName}").AppendLine();
-            exceptionMessage.Append($"LineNumber: {lineNumber}").AppendLine();
-
-
-            foreach (var MessageModel in exceptionErrors)
-            {
-                exceptionMessage.Append($"Exception Message:").AppendLine();
-                exceptionMessage.Append($"Exception Message NotificationId: {MessageModel.Code}").AppendLine();
-                exceptionMessage.Append($"Exception Message Description: {MessageModel.Description}").AppendLine();
-            }
-
-            exceptionMessage.Append($"End of exception: {LineLogSeparator}").AppendLine();
-
-
-            return (T) Activator.CreateInstance(typeof(T), exceptionMessage.ToString());
         }
 
         public static void AsDomainException(this Exception exception)

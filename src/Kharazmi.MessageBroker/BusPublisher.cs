@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
-using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Extensions;
 using RabbitMQ.Client;
 using RawRabbit;
@@ -36,7 +34,7 @@ namespace Kharazmi.MessageBroker
         /// <returns></returns>
         public Task SendAsync<TCommand>(TCommand command, DomainContext eventBusContext,
             CancellationToken cancellationToken = default)
-            where TCommand : ICommand
+            where TCommand : IDomainCommand
             => _busClient.PublishAsync(command, context => context.UseMessageContext(eventBusContext),
                 token: cancellationToken);
 
@@ -55,7 +53,7 @@ namespace Kharazmi.MessageBroker
             DomainContext domainContext,
             ExchangeConfiguration exchangeConfiguration = null,
             Action<IBasicProperties> properties = null,
-            CancellationToken cancellationToken = default) where TCommand : ICommand
+            CancellationToken cancellationToken = default) where TCommand : IDomainCommand
         {
             return PublishMessageAsync(command, domainContext, exchangeConfiguration, properties, cancellationToken);
         }

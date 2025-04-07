@@ -9,6 +9,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AutoFixture.Xunit2" />
+        <PackageReference Include="AutoFixture"  />
+        <PackageReference Include="AutoFixture.AutoNSubstitute" />
+        <PackageReference Include="FakeItEasy" />
         <PackageReference Include="Moq"/>
         <PackageReference Include="NSubstitute"/>
         <PackageReference Include="FluentAssertions"/>
@@ -16,10 +20,15 @@
         <PackageReference Include="xunit"/>
         <PackageReference Include="xunit.runner.visualstudio"/>
         <PackageReference Include="coverlet.collector"/>
+        <PackageReference Include="Bogus"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Domain\" />
     </ItemGroup>
 
 </Project>

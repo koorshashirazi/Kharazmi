@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Domain.Aggregates;
 using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.EventSourcing;

@@ -1,5 +1,4 @@
-﻿using System;
-using Kharazmi.AspNetCore.Core.Enumerations;
+﻿using Kharazmi.AspNetCore.Core.Enumerations;
 
 namespace Kharazmi.AspNetCore.Core.XUnitTests.EnumConverter
 {

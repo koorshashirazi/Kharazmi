@@ -210,7 +210,7 @@ namespace Kharazmi.AspNetCore.Core.Linq
                         fieldProps.Add(new DynamicProperty(aggregate.Aggregate, typeof(object)), val);
                     }
 
-                    type = DynamicClassFactory.CreateType(fieldProps.Keys.ToList());
+                    type = DynamicClassFactory.CreateType([.. fieldProps.Keys]);
                     var fieldObj = Activator.CreateInstance(type);
                     foreach (var p in fieldProps.Keys)
                     {
@@ -219,7 +219,7 @@ namespace Kharazmi.AspNetCore.Core.Linq
                     objProps.Add(new DynamicProperty(group.Key, fieldObj.GetType()), fieldObj);
                 }
 
-                type = DynamicClassFactory.CreateType(objProps.Keys.ToList());
+                type = DynamicClassFactory.CreateType([.. objProps.Keys]);
 
                 var obj = Activator.CreateInstance(type);
                 foreach (var p in objProps.Keys)

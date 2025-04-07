@@ -1,7 +1,5 @@
 using Kharazmi.AspNetCore.Core.IntegrationTests.Settings;
 using Kharazmi.AspNetCore.Web.Configuration;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests
 {

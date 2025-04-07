@@ -14,21 +14,23 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
     public class DomainException : FrameworkException
     {
         /// <summary></summary>
-        public string AggregateId { get; protected set; }  
+        public string AggregateId { get; protected set; }
+
         /// <summary></summary>
         public string MessageType { get; protected set; }
-        public IReadOnlyCollection<MessageModel?> ErrorMessages { get; protected set; }
-        public IReadOnlyCollection<ValidationFailure> ValidationFailures { get; protected set; }
-        public IReadOnlyCollection<MessageModel> ExceptionErrors { get; protected set; }
 
-        private DomainException(string message, Exception exception, string description, string code,
-            IEnumerable<MessageModel?> messageErrors,
-            IEnumerable<ValidationFailure> validationFailures,
-            IEnumerable<MessageModel> exceptionErrors) : base(message, exception, description, code)
+        public HashSet<FriendlyResultMessage> ErrorMessages { get; protected set; }
+        public HashSet<ValidationFailure> ValidationFailures { get; protected set; }
+        public HashSet<InternalResultMessage> ExceptionErrors { get; protected set; }
+
+        private DomainException(string message, Exception? exception, string description, string code,
+            HashSet<FriendlyResultMessage> messageErrors,
+            HashSet<ValidationFailure> validationFailures,
+            HashSet<InternalResultMessage> exceptionErrors) : base(message, exception, description, code)
         {
-            ErrorMessages = messageErrors.AsReadOnly();
-            ValidationFailures = validationFailures.AsReadOnly();
-            ExceptionErrors = exceptionErrors.AsReadOnly();
+            ErrorMessages = messageErrors;
+            ValidationFailures = validationFailures;
+            ExceptionErrors = exceptionErrors;
         }
 
         /// <summary>
@@ -36,26 +38,24 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// </summary>
         /// <returns></returns>
         public static DomainException Empty() =>
-            new DomainException("", null, "", "", Enumerable.Empty<MessageModel>(),
-                Enumerable.Empty<ValidationFailure>(), Enumerable.Empty<MessageModel>());
+            new("", null, "", "", [], [], []);
 
 
-        public static DomainException For(string message, Exception exception = null) =>
-            new DomainException(message, exception, "", "", Enumerable.Empty<MessageModel>(),
-                Enumerable.Empty<ValidationFailure>(), Enumerable.Empty<MessageModel>());
+        public static DomainException For(string message, Exception? exception = null) =>
+            new(message, exception, "", "", [], [], []);
 
         public DomainException WithAggregateId(string value)
         {
             AggregateId = value;
             return this;
         }
-        
+
         public DomainException WithMessageType(string value)
         {
             MessageType = value;
             return this;
         }
-  
+
         /// <summary>
         /// 
         /// </summary>
@@ -63,111 +63,48 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <param name="message"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public static DomainException From(Result result, string message = "", Exception exception = null)
+        public static DomainException From(Result result, string message = "", Exception? exception = null)
         {
+            if (result == null) throw new ArgumentNullException(nameof(result));
             return For(message, exception)
-                .WithMessageType(result?.MessageType)
-                .AddErrorMessages(result?.Messages)
-                .AddValidationMessages(result?.ValidationMessages)
-                .WithCode(result?.Code)
-                .WithDescription(result?.Description)
+                .WithMessageType(result.FriendlyMessage.MessageType)
+                .AddErrorMessages([.. result.Messages])
+                .AddValidationMessages([.. result.ValidationMessages])
+                .WithCode($"{result.FriendlyMessage.Code}")
+                .WithDescription(result.FriendlyMessage.Description)
                 .ToDomainException();
         }
 
-        public static DomainException From(MessageModel messageModel, string message = "", Exception exception = null)
+        public DomainException AddErrorMessages(params IReadOnlyCollection<FriendlyResultMessage> errors)
         {
-            return For(message, exception)
-                .WithMessageType(messageModel?.MessageType)
-                .WithCode(messageModel?.Code)
-                .WithDescription(messageModel?.Description)
-                .ToDomainException();
-        }
+            if (errors == null) throw new ArgumentNullException(nameof(errors));
 
-        public DomainException AddErrorMessage(MessageModel? error)
-        {
-            if (ErrorMessages == null)
-                ErrorMessages = new List<MessageModel?>();
-
-            if (error != null)
+            foreach (var message in errors)
             {
-                var exceptionsErrors = ErrorMessages.ToList();
-                exceptionsErrors.Add(error);
-                ErrorMessages = exceptionsErrors.AsReadOnly();
+                ErrorMessages.Add(message);
             }
 
             return this;
         }
 
-        public DomainException AddErrorMessages(IEnumerable<MessageModel?> errors)
+        public DomainException AddValidationMessages(params IReadOnlyCollection<ValidationFailure> failures)
         {
-            if (ErrorMessages == null)
-                ErrorMessages = new List<MessageModel?>();
-
-            if (errors != null)
+            if (failures == null) throw new ArgumentNullException(nameof(failures));
+            foreach (var message in failures)
             {
-                var exceptionsErrors = ErrorMessages.ToList();
-                exceptionsErrors.AddRange(errors);
-                ErrorMessages = exceptionsErrors.AsReadOnly();
+                ValidationFailures.Add(message);
             }
 
             return this;
         }
 
-        public DomainException AddValidationMessage(ValidationFailure validationFailure)
+
+        public DomainException AddExceptionMessages(params IReadOnlyCollection<InternalResultMessage> errors)
         {
-            if (ValidationFailures == null)
-                ValidationFailures = new List<ValidationFailure>();
-
-            if (validationFailure != null)
+            if (errors == null) throw new ArgumentNullException(nameof(errors));
+            foreach (var message in errors)
             {
-                var messages = ValidationFailures.ToList();
-                messages.Add(validationFailure);
-                ValidationFailures = messages.AsReadOnly();
-            }
-
-            return this;
-        }
-
-        public DomainException AddValidationMessages(IEnumerable<ValidationFailure> validationFailures)
-        {
-            if (ValidationFailures == null)
-                ValidationFailures = new List<ValidationFailure>();
-
-            if (validationFailures != null)
-            {
-                var messages = ValidationFailures.ToList();
-                messages.AddRange(validationFailures);
-                ValidationFailures = messages.AsReadOnly();
-            }
-
-            return this;
-        }
-
-        public DomainException AddExceptionMessage(MessageModel error)
-        {
-            if (ExceptionErrors == null)
-                ExceptionErrors = new List<MessageModel>();
-
-            if (error != null)
-            {
-                var messages = ExceptionErrors.ToList();
-                messages.Add(error);
-                ExceptionErrors = messages.AsReadOnly();
-            }
-
-            return this;
-        }
-
-        public DomainException AddExceptionMessages(IEnumerable<MessageModel> errors)
-        {
-            if (ExceptionErrors == null)
-                ExceptionErrors = new List<MessageModel>();
-
-            if (errors != null)
-            {
-                var messages = ExceptionErrors.ToList();
-                messages.AddRange(errors);
-                ExceptionErrors = messages.AsReadOnly();
+                ExceptionErrors.Add(message);
             }
 
             return this;

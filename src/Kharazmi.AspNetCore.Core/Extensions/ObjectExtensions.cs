@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.ValueObjects;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

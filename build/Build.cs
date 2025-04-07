@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Xml.Linq;
-using Microsoft.Build.Utilities;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -21,7 +19,6 @@ using Nuke.Common.Tools.NuGet;
 using Nuke.Common.Tools.ReportGenerator;
 using Serilog;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using Nuke.Common.Tools.MinVer;
 
 [AzurePipelines(
     AzurePipelinesImage.UbuntuLatest,
@@ -57,7 +54,7 @@ class Build : NukeBuild
 
     [Parameter("Nuget api key")] [Secret] readonly string NuGetApiKey;
     [Parameter("Github secure token")] [Secret] readonly string GitHubToken;
-    
+
     [Parameter("The git command")] readonly string GitCommand = "add .";
     [Parameter] readonly string CommitMessage;
     [Parameter] readonly string GitHubBranch;
@@ -159,7 +156,7 @@ class Build : NukeBuild
                     .SetTargetArgs("test", Solution.Path, "--no-build", "--no-restore")
                     .SetAssembly(project.Directory / "bin" / Configuration / targetFramework / projectName + ".dll")
                     // .SetThreshold(75)
-                    .SetOutput(CoverageDirectory / "opencover.xml")
+                    .SetOutput(CoverageDirectory / $"{projectName}.xml")
                     .SetFormat(CoverletOutputFormat.opencover)
                     .SetExclude("*Tests"));
             }
@@ -173,11 +170,18 @@ class Build : NukeBuild
         {
             ReportDirectory.CreateOrCleanDirectory();
 
-            ReportGeneratorTasks.ReportGenerator(s => s
-                .SetTargetDirectory(ReportDirectory)
-                .SetFramework("net8.0")
-                .SetReportTypes(ReportTypes.Html)
-                .SetReports(CoverageDirectory / "opencover.xml"));
+            var testProjects = Solution.GetAllProjects("*.XUnitTests");
+            foreach (var project in testProjects)
+            {
+                var targetFramework = project.GetTargetFrameworks()?.First();
+                var projectName = project.Name;
+
+                ReportGeneratorTasks.ReportGenerator(s => s
+                    .SetTargetDirectory(ReportDirectory)
+                    .SetFramework(targetFramework)
+                    .SetReportTypes(ReportTypes.Html)
+                    .SetReports(CoverageDirectory / $"{projectName}.xml"));
+            }
         });
 
     Target SetupLocalFeed => _ => _

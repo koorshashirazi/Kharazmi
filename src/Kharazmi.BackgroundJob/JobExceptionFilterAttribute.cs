@@ -25,7 +25,6 @@ namespace Kharazmi.BackgroundJob
 
         public void OnPerforming(PerformingContext filterContext)
         {
-          
         }
 
         public void OnPerformed(PerformedContext filterContext)
@@ -36,13 +35,13 @@ namespace Kharazmi.BackgroundJob
                 {
                     Parallel.ForEach(domainException.ExceptionErrors,
                         error => Logger.Error(
-                            $"Job Id: {filterContext.BackgroundJob.Id} , Error Message: {error.Description}"));
+                            $"Job Id: {filterContext.BackgroundJob.Id} , Error with category: {error.Category}, message: {error.Message}"));
                 }
                 else
                 {
-                    Parallel.ForEach(filterContext.Exception.CollectExceptionIncludeInnerException(),
-                        error => Logger.Error(
-                            $"Job Id: {filterContext.BackgroundJob.Id} , Error Message: {error.Description}"));
+                    var errorJsonMessage = filterContext.Exception.AsJsonException();
+
+                    Logger.Error($"Job Id: {filterContext.BackgroundJob.Id} , Error Message: {errorJsonMessage}");
                 }
 
                 filterContext.CancellationToken.ThrowIfCancellationRequested();

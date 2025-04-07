@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Title>Kharazmi.MongoDb</Title>
@@ -9,16 +9,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MongoDB.Bson"/>
-        <PackageReference Include="MongoDB.Driver"/>
+        
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        
+        <PackageReference Include="MongoDB.Bson" />
+        <PackageReference Include="MongoDB.Driver" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+        <PackageReference Include="Kharazmi.AspNetCore.Core" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Linq;
 
@@ -158,11 +158,14 @@ namespace Kharazmi.AspNetCore.Core.Network
 
             var incrementIndex = Array.FindLastIndex(bytes, x => x < byte.MaxValue);
             if (incrementIndex < 0) throw new OverflowException();
-            return bytes
-                .Take(incrementIndex)
-                .Concat(new byte[] { (byte)(bytes[incrementIndex] + 1) })
-                .Concat(new byte[bytes.Length - incrementIndex - 1])
-                .ToArray();
+            return
+            [
+                .. bytes
+                                .Take(incrementIndex)
+,
+                .. new byte[] { (byte)(bytes[incrementIndex] + 1) },
+                .. new byte[bytes.Length - incrementIndex - 1],
+            ];
         }
 
         public static byte[] Decrement(byte[] bytes)

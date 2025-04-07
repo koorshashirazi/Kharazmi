@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Events;
+using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.Handlers;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,74 +15,56 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
     /// <summary>
     /// 
     /// </summary>
-    public interface IEventDispatcher
+    public interface IDomainEventDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="event"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TEvent"></typeparam>
-        /// <returns></returns>
-        Task<Result> RaiseAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+        Task<Result> RaiseAsync<TEvent>(TEvent domainEvent, CancellationToken token = default)
             where TEvent : class, IDomainEvent;
-
-        /// <summary></summary>
-        /// <param name="event"></param>
-        /// <param name="domainContext"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TEvent"></typeparam>
-        /// <returns></returns>
-        Task<Result> RaiseAsync<TEvent>(TEvent @event, DomainContext domainContext,
-            CancellationToken cancellationToken = default) where TEvent : class, IDomainEvent;
     }
 
-    internal class EventDispatcher : IEventDispatcher
+    internal class DomainEventDispatcher : IDomainEventDispatcher
     {
         private readonly IServiceProvider _serviceFactory;
+        private static readonly ConcurrentDictionary<Type, IEnumerable<IDomainEventHandler>> EventHandlersTypes = new();
 
-        public EventDispatcher(IServiceProvider serviceFactory)
+        public DomainEventDispatcher(IServiceProvider serviceFactory)
         {
             _serviceFactory = serviceFactory;
         }
 
 
-        public async Task<Result> RaiseAsync<TEvent>(TEvent @event, CancellationToken cancellationToken = default)
+        // TODO: like CommandDispatcher
+        public Task<Result> RaiseAsync<TEvent>(TEvent domainEvent, CancellationToken token = default)
             where TEvent : class, IDomainEvent
         {
-            foreach (var eventHandler in _serviceFactory.GetServices<IEventHandler<TEvent>>())
-            {
-                var result = await eventHandler
-                    .HandleAsync(@event, DomainContext.Empty, cancellationToken).ConfigureAwait(false);
+            return ExceptionHandler.ExecuteResultAsync(async @event =>
+                {
+                    var eventHandlers = _serviceFactory.GetServices<IDomainEventHandler<TEvent>>();
 
-                if (result.Failed )
-                    return result;
-            }
+                    foreach (var eventHandler in eventHandlers)
+                    {
+                        var result = await eventHandler.HandleAsync(@event, token).ConfigureAwait(false);
+                        if (result.Failed)
+                        {
+                            return result;
+                        }
+                    }
 
-            return Result.Ok();
+                    return Result.Ok();
+                }, state: domainEvent, nameof(domainEvent),
+                onError: e =>
+                    Task.FromResult(Result.Fail($"Unable to raise {DomainEventType.From<TEvent>()}").WithException(e)));
         }
 
-        public async Task<Result> RaiseAsync<TEvent>(TEvent @event, DomainContext domainContext,
-            CancellationToken cancellationToken = default) where TEvent : class, IDomainEvent
+        private static IEnumerable<IDomainEventHandler> GetEventHandlers(IServiceProvider sp, Type eventType)
         {
-            if (@event is DomainNotificationDomainEvent notification)
+            return EventHandlersTypes.GetOrAdd(eventType, ValueFactory);
+
+            IEnumerable<IDomainEventHandler> ValueFactory(Type arg)
             {
-                var domainNotificationHandler = _serviceFactory.GetRequiredService<IDomainNotificationHandler>();
-                return await domainNotificationHandler.HandleAsync(notification, domainContext, cancellationToken).ConfigureAwait(false);
+                var serviceType = typeof(IDomainEventHandler<>).MakeGenericType(arg);
+                var handlers = sp.GetServices(serviceType);
+                return handlers.OfType<IDomainEventHandler>();
             }
-
-            foreach (var eventHandler in _serviceFactory.GetServices<IEventHandler<TEvent>>())
-            {
-                var result = await eventHandler
-                    .HandleAsync(@event, domainContext ?? DomainContext.Empty, cancellationToken).ConfigureAwait(false);
-
-                if (result.Failed)
-                {
-                    return result;
-                }
-            }
-
-            return Result.Ok();
         }
     }
 }

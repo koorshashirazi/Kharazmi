@@ -7,26 +7,21 @@ using Kharazmi.AspNetCore.Web.Http;
 
 namespace Kharazmi.AspNetCore.Web.Bus.Messages
 {
-    internal class DomainContextService : IDomainContextService
+    internal sealed class DomainContextService : IDomainContextService
     {
         private readonly IUserContextService _userContextService;
-        private DomainContext _domainContext;
+        private DomainContext _domainContext = DomainContext.Empty;
 
         public DomainContextService(IUserContextService userContextService)
         {
-            _userContextService = userContextService;
+            _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
         }
 
-        public Task<DomainContext> CreateAsync<TDomain>(
-            string domainId = null,
+        public Task<DomainContext> CreateAsync(
+            string? domainId = null,
             string resourceId = "",
             string resource = "")
         {
-            if (_userContextService == null)
-            {
-                return Task.FromResult(DomainContext.Empty);
-            }
-
             if (resource.IsNotEmpty())
             {
                 resource = $"{resource}/{resourceId}";
@@ -34,7 +29,7 @@ namespace Kharazmi.AspNetCore.Web.Bus.Messages
 
             resourceId = resourceId.IsEmpty() ? Guid.Empty.ToString("N") : resourceId;
 
-            _domainContext = DomainContext.Create<TDomain>(
+            _domainContext = DomainContext.Create(
                 domainId,
                 _userContextService.UserId,
                 resourceId,
@@ -49,18 +44,16 @@ namespace Kharazmi.AspNetCore.Web.Bus.Messages
             return Task.FromResult(_domainContext);
         }
 
-        public async Task<DomainContext> GetAsync<TDomain>(string resourceId = "", string resource = "")
+        public async Task<DomainContext> GetAsync(string resourceId = "", string resource = "")
         {
-            if (_domainContext == null)
-                _domainContext = await CreateAsync<TDomain>(null, resourceId, resource).ConfigureAwait(false);
-
-            return await Task.FromResult(_domainContext).ConfigureAwait(false);
+            _domainContext = await CreateAsync(null, resourceId, resource).ConfigureAwait(false);
+            return _domainContext;
         }
 
-        public async Task<DomainContext> UpdateAsync<TDomain>(DomainContext domainContext)
+        public async Task<DomainContext> UpdateAsync(Action<DomainContext> domainContext)
         {
-            _domainContext = await GetAsync<TDomain>().ConfigureAwait(false);
-            _domainContext = DomainContext.From<TDomain>(domainContext);
+            _domainContext = await GetAsync().ConfigureAwait(false);
+            domainContext.Invoke(_domainContext);
             return _domainContext;
         }
     }

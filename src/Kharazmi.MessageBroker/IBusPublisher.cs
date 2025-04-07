@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
-using Kharazmi.AspNetCore.Core.Domain.Events;
 using RabbitMQ.Client;
 
 namespace Kharazmi.MessageBroker
@@ -21,7 +19,7 @@ namespace Kharazmi.MessageBroker
         /// <returns></returns>
         Task SendAsync<TCommand>(TCommand command, DomainContext context,
             CancellationToken cancellationToken = default)
-            where TCommand : ICommand;
+            where TCommand : IDomainCommand;
 
         /// <summary>
         /// 
@@ -37,7 +35,7 @@ namespace Kharazmi.MessageBroker
             DomainContext domainContext,
             ExchangeConfiguration exchangeConfiguration = null,
             Action<IBasicProperties> properties = null,
-            CancellationToken cancellationToken = default) where TCommand : ICommand;
+            CancellationToken cancellationToken = default) where TCommand : IDomainCommand;
 
         /// <summary>
         /// 

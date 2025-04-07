@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.GuardToolkit;

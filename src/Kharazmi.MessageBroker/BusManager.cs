@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
 using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Functional;
@@ -29,7 +28,7 @@ namespace Kharazmi.MessageBroker
 
         /// <summary> </summary>
         public Task PublishCommandAsync<TCommand>(TCommand command, DomainContext domainContext = null,
-            CancellationToken cancellationToken = default) where TCommand : ICommand
+            CancellationToken cancellationToken = default) where TCommand : IDomainCommand
         {
             return TryHandleAsync(command, domainContext, () =>
                 _busPublisher.SendAsync(command, domainContext, cancellationToken), cancellationToken);
@@ -41,7 +40,7 @@ namespace Kharazmi.MessageBroker
             DomainContext domainContext,
             ExchangeConfiguration exchangeConfiguration = null,
             Action<IBasicProperties> properties = null,
-            CancellationToken cancellationToken = default) where TCommand : ICommand
+            CancellationToken cancellationToken = default) where TCommand : IDomainCommand
         {
             return TryHandleAsync(command, domainContext, () =>
                     _busPublisher.SendToAsync(command, domainContext, exchangeConfiguration, properties,

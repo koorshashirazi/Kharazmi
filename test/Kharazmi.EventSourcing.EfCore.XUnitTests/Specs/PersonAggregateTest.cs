@@ -1,4 +1,3 @@
-using System;
 using Kharazmi.AspNetCore.Core.Domain.Aggregates;
 using Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Events;
 

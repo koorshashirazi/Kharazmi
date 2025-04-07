@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Collections.ObjectModel;
 using Kharazmi.AspNetCore.Core.Application.Models;
 
 namespace Kharazmi.AspNetCore.Core.Application.Events
@@ -17,15 +17,15 @@ namespace Kharazmi.AspNetCore.Core.Application.Events
         /// 
         /// </summary>
         /// <param name="models"></param>
-        public EditingEvent(IEnumerable<ModifiedModel<TModel>> models)
+        public EditingEvent(ReadOnlyCollection<ModifiedModel<TModel>> models)
         {
-            Models = models.ToImmutableList();
+            Models = models;
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<ModifiedModel<TModel>> Models { get; }
+        public IReadOnlyCollection<ModifiedModel<TModel>> Models { get; }
 
     }
 }

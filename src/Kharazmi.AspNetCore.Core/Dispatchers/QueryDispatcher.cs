@@ -1,47 +1,58 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Queries;
+using Kharazmi.AspNetCore.Core.Exceptions;
+using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.Handlers;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Kharazmi.AspNetCore.Core.Dispatchers
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IQueryDispatcher
+    public interface IDomainQueryDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="domainContext"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query, DomainContext domainContext,
-            CancellationToken cancellationToken = default);
+        Task<Result<TResult>> QueryAsync<TQuery, TResult>(TQuery domainQuery, CancellationToken token = default)
+            where TQuery : class, IDomainQuery;
+
+        IAsyncEnumerable<TResult> QueryStreamAsync<TQuery, TResult>(TQuery domainQuery,
+            CancellationToken token = default)
+            where TQuery : class, IDomainQuery;
     }
 
-    internal class QueryDispatcher : IQueryDispatcher
+    internal class DomainQueryDispatcher : IDomainQueryDispatcher
     {
-        private readonly IServiceProvider _serviceFactory;
+        private readonly IServiceProvider _serviceProvider;
 
-        public QueryDispatcher(IServiceProvider serviceFactory)
+        public DomainQueryDispatcher(IServiceProvider serviceProvider)
         {
-            _serviceFactory = serviceFactory;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
+        public Task<Result<TResult>> QueryAsync<TQuery, TResult>(TQuery domainQuery,
+            CancellationToken token = default) where TQuery : class, IDomainQuery
         {
-            var handlerType = typeof(IQueryHandler<,>)
-                .MakeGenericType(query.GetType(), typeof(TResult));
+            return ExceptionHandler.ExecuteResultAsAsync<TQuery, TResult>(async query =>
+            {
+                if (query == null) throw new ArgumentNullException(nameof(query));
+                var handler = _serviceProvider.GetRequiredService<IDomainQueryHandler<TQuery, TResult>>();
+                return await handler.HandleAsync(query, token).ConfigureAwait(false);
+            }, state: domainQuery, nameof(domainQuery),
+                onError: e => Task.FromResult(Result
+                .Fail($"Unable to handle the query {DomainQueryType.From<TQuery>()}")
+                .WithException(e)
+                .MapToFail<TResult>()));
+        }
 
-            dynamic handler = _serviceFactory.GetService(handlerType);
-
-            return await handler.HandleAsync((dynamic) query, domainContext, cancellationToken);
+        public IAsyncEnumerable<TResult> QueryStreamAsync<TQuery, TResult>(TQuery domainQuery,
+            CancellationToken token = default) where TQuery : class, IDomainQuery
+        {
+            if (domainQuery == null) throw new ArgumentNullException(nameof(domainQuery));
+            var handler = _serviceProvider.GetRequiredService<IStreamDomainQueryHandler<TQuery, TResult>>();
+            return handler.HandleStreamAsync(domainQuery, token);
         }
     }
 }

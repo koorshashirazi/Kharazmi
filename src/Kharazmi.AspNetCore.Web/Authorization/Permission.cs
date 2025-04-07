@@ -78,7 +78,7 @@ namespace Kharazmi.AspNetCore.Web.Authorization
             Dictionary<string, object> properties = null,
             TenancySides tenancySides = TenancySides.None)
         {
-            Name = Ensure.IsNotEmpty(name, nameof(name));
+            Name = Localization.Ensure.IsNotEmpty(name, nameof(name));
             DisplayName = displayName;
             Description = description;
             TenancySides = tenancySides;

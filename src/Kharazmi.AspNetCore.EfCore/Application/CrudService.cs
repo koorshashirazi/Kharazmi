@@ -29,7 +29,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         where TModel : MasterModel<TKey>
         where TKey : IEquatable<TKey>
     {
-        protected CrudService(IUnitOfWork uow, IEventDispatcher busManager) : base(uow, busManager)
+        protected CrudService(IUnitOfWork uow, IDomainEventDispatcher busManager) : base(uow, busManager)
         {
         }
     }
@@ -42,7 +42,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         where TReadModel : ReadModel<TKey>
         where TKey : IEquatable<TKey>
     {
-        protected CrudService(IUnitOfWork uow, IEventDispatcher busManager) : base(uow, busManager)
+        protected CrudService(IUnitOfWork uow, IDomainEventDispatcher busManager) : base(uow, busManager)
         {
         }
     }
@@ -57,13 +57,13 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         where TKey : IEquatable<TKey>
     {
         protected readonly DbSet<TEntity> EntitySet;
-        protected readonly IEventDispatcher EventBusManager;
+        protected readonly IDomainEventDispatcher DomainEventBusManager;
         protected readonly IUnitOfWork UnitOfWork;
 
-        protected CrudService(IUnitOfWork uow, IEventDispatcher busManager)
+        protected CrudService(IUnitOfWork uow, IDomainEventDispatcher busManager)
         {
             UnitOfWork = uow ?? throw new ArgumentNullException(nameof(uow));
-            EventBusManager = busManager ?? throw new ArgumentNullException(nameof(busManager));
+            DomainEventBusManager = busManager ?? throw new ArgumentNullException(nameof(busManager));
             EntitySet = UnitOfWork.Set<TEntity>();
         }
 
@@ -113,7 +113,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         [Transactional]
         public Task<Result> CreateAsync(TModel model)
         {
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             return CreateAsync(new[] {model});
         }
@@ -130,7 +130,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
 
             await AfterMappingAsync(modelList, entityList).ConfigureAwait(false);
 
-            await EventBusManager.RaiseCreatingEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseCreatingEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
 
             EntitySet.AddRange(entityList);
             await UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
@@ -141,7 +141,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
             result = await AfterCreateAsync(modelList).ConfigureAwait(false);
             if (result.Failed) return result;
 
-            await EventBusManager.RaiseCreatedEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseCreatedEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
 
             return result;
         }
@@ -149,7 +149,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         [Transactional]
         public Task<Result> EditAsync(TModel model)
         {
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             return EditAsync(new[] {model});
         }
@@ -171,7 +171,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
 
             await AfterMappingAsync(modelList, entityList).ConfigureAwait(false);
 
-            await EventBusManager.RaiseEditingEventAsync<TModel, TKey>(modifiedList).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseEditingEventAsync<TModel, TKey>(modifiedList).ConfigureAwait(false);
 
             UnitOfWork.TrackChanges(entityList);
             await UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
@@ -182,7 +182,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
             result = await AfterEditAsync(modifiedList, entityList).ConfigureAwait(false);
             if (result.Failed) return result;
 
-            await EventBusManager.RaiseEditedEventAsync<TModel, TKey>(modifiedList).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseEditedEventAsync<TModel, TKey>(modifiedList).ConfigureAwait(false);
 
             return result;
         }
@@ -191,7 +191,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
         [SkipValidation]
         public Task<Result> DeleteAsync(TModel model)
         {
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             return DeleteAsync(new[] {model});
         }
@@ -207,7 +207,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
 
             var entityList = modelList.MapReadOnlyList<TModel, TEntity>(MapToEntity);
 
-            await EventBusManager.RaiseDeletingEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseDeletingEventAsync<TModel, TKey>(modelList).ConfigureAwait(false);
 
             EntitySet.RemoveRange(entityList);
             await UnitOfWork.SaveChangesAsync().ConfigureAwait(false);
@@ -215,7 +215,7 @@ namespace Kharazmi.AspNetCore.EFCore.Application
             result = await AfterDeleteAsync(modelList).ConfigureAwait(false);
             if (result.Failed) return result;
 
-            await EventBusManager.RaiseDeletedEventAsync<TModel, TKey>(modelList, CancellationToken.None).ConfigureAwait(false);
+            await DomainEventBusManager.RaiseDeletedEventAsync<TModel, TKey>(modelList, CancellationToken.None).ConfigureAwait(false);
 
             return result;
         }

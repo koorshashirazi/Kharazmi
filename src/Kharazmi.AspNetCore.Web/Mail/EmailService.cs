@@ -74,7 +74,7 @@ namespace Kharazmi.AspNetCore.Web.Mail
         /// <returns></returns>
         public List<EmailMessage> ReceiveEmail(int maxCount = 10)
         {
-            return AsyncHelper.RunAsSync(() => ReceiveEmailAsync(maxCount));
+            return AsyncHelper.RunSync(() => ReceiveEmailAsync(maxCount));
         }
 
         /// <summary> </summary>

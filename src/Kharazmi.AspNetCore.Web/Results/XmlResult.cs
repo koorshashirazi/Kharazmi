@@ -10,14 +10,14 @@ namespace Kharazmi.AspNetCore.Web.Results
 
         public XmlResult(object data)
         {
-            Guard.ArgumentNotNull(data, nameof(data));
+            Ensure.ArgumentIsNotNull(data, nameof(data));
 
             _data = data;
         }
 
         public override void ExecuteResult(ActionContext context)
         {
-            Guard.ArgumentNotNull(context, nameof(context));
+            Ensure.ArgumentIsNotNull(context, nameof(context));
 
             var response = context.HttpContext.Response;
 

@@ -13,13 +13,13 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
     public class UserFriendlyException : FrameworkException
     {
         /// <summary></summary>
-        public IReadOnlyCollection<MessageModel?> ErrorMessages { get; protected set; }
+        public HashSet<FriendlyResultMessage> ErrorMessages { get; protected set; }
 
-        private UserFriendlyException(string message, Exception exception, string description, string code,
-            IEnumerable<MessageModel?> errorMessages) : base(
+        private UserFriendlyException(string message, Exception? exception, string description, string code,
+            HashSet<FriendlyResultMessage> errorMessages) : base(
             message, exception, description, code)
         {
-            ErrorMessages = errorMessages.AsReadOnly();
+            ErrorMessages = errorMessages;
         }
 
 
@@ -28,11 +28,11 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// </summary>
         /// <returns></returns>
         public static UserFriendlyException Empty() =>
-            new UserFriendlyException("", null, "", "", Enumerable.Empty<MessageModel>());
+            new ("", null, "", "", []);
 
 
-        public static UserFriendlyException For(string message, Exception exception = null) =>
-            new UserFriendlyException(message, exception, "", "", Enumerable.Empty<MessageModel>());
+        public static UserFriendlyException For(string message, Exception? exception = null) =>
+            new (message, exception, "", "", []);
 
 
         /// <summary>
@@ -42,51 +42,27 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <param name="message"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public static UserFriendlyException From(Result result, string message = "", Exception exception = null)
+        public static UserFriendlyException From(Result result, string message = "", Exception? exception = null)
         {
             return For(message, exception)
-                .AddErrorMessages(result?.Messages)
-                .WithCode(result?.Code)
-                .WithDescription(result?.Description)
+                .AddErrorMessages(result.Messages)
+                .WithCode($"{result.FriendlyMessage.Code}")
+                .WithDescription(result.FriendlyMessage.Description)
                 .ToUserFriendlyException();
         }
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="error"></param>
-        /// <returns></returns>
-        public UserFriendlyException AddErrorMessage(MessageModel? error)
-        {
-            if (ErrorMessages == null)
-                ErrorMessages = new List<MessageModel?>();
-
-            if (error != null)
-            {
-                var exceptionsErrors = ErrorMessages.ToList();
-                exceptionsErrors.Add(error);
-                ErrorMessages = exceptionsErrors.AsReadOnly();
-            }
-
-            return this;
-        }
+ 
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="errors"></param>
         /// <returns></returns>
-        public UserFriendlyException AddErrorMessages(IEnumerable<MessageModel?> errors)
+        public UserFriendlyException AddErrorMessages(params IReadOnlyCollection<FriendlyResultMessage> errors)
         {
-            if (ErrorMessages == null)
-                ErrorMessages = new List<MessageModel?>();
-
-            if (errors != null)
+            if (errors == null) throw new ArgumentNullException(nameof(errors));
+            foreach (var message in errors)
             {
-                var exceptionsErrors = ErrorMessages.ToList();
-                exceptionsErrors.AddRange(errors);
-                ErrorMessages = exceptionsErrors.AsReadOnly();
+                ErrorMessages.Add(message);
             }
 
             return this;

@@ -33,16 +33,6 @@ namespace Kharazmi.AspNetCore.Core
         ///
         /// </summary>
         /// <returns></returns>
-        public CoreFrameworkBuilder WithHtmlReader()
-        {
-            Services.AddHtmlReaderService();
-            return this;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         public CoreFrameworkBuilder WithUrlNormalization()
         {
             Services.AddUrlNormalizationService();
@@ -80,7 +70,7 @@ namespace Kharazmi.AspNetCore.Core
             return this;
         }
 
-       
+
         /// <summary>
         /// Register the IBackgroundTaskQueue
         /// </summary>

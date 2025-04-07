@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Functional;
 
 namespace Kharazmi.AspNetCore.Core.Handlers
@@ -12,7 +12,7 @@ namespace Kharazmi.AspNetCore.Core.Handlers
     }
 
     public interface ICommandValidationHandler<in TCommand> : IValidationHandler<TCommand, Result>
-        where TCommand : Command
+        where TCommand : DomainCommand
     {
     }
 }

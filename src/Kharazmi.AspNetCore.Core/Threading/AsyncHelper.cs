@@ -1,124 +1,134 @@
-﻿using System;
-using System.Globalization;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Nito.AsyncEx;
-
+﻿using Kharazmi.AspNetCore.Core.Exceptions;
 
 namespace Kharazmi.AspNetCore.Core.Threading
 {
+    using System;
+    using System.Globalization;
+    using System.Reflection;
+    using System.Threading;
+    using System.Threading.Tasks;
+
     /// <summary>
-    /// 
+    /// Helper for synchronous execution of asynchronous methods
     /// </summary>
     public static class AsyncHelper
     {
         /// <summary>
-        /// Checks if given method is an async method.
+        /// Checks if the given method is an asynchronous method
         /// </summary>
-        /// <param name="method">A method to check</param>
+        /// <param name="method">The method to check</param>
+        /// <returns>true if the method is asynchronous, false otherwise</returns>
         public static bool IsAsync(this MethodInfo method)
         {
-            return method.ReturnType == typeof(Task) ||
-                   (method.ReturnType.GetTypeInfo().IsGenericType &&
-                    method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
+            if (method == null)
+                throw new ArgumentNullException(nameof(method));
+
+            var returnType = method.ReturnType;
+            return returnType == typeof(Task) ||
+                   returnType == typeof(ValueTask) ||
+                   (returnType.IsGenericType &&
+                    (returnType.GetGenericTypeDefinition() == typeof(Task<>) ||
+                     returnType.GetGenericTypeDefinition() == typeof(ValueTask<>)));
         }
 
-        private static readonly TaskFactory MyTaskFactory = new TaskFactory(CancellationToken.None,
-            TaskCreationOptions.None, TaskContinuationOptions.None, TaskScheduler.Default);
 
         /// <summary>
-        /// 
+        /// Attempt to execute an asynchronous function synchronously with cancellation ability
         /// </summary>
-        /// <param name="func"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public static TResult RunSync<TResult>(Func<Task<TResult>> func)
-        {
-            var cultureUi = CultureInfo.CurrentUICulture;
-            var culture = CultureInfo.CurrentCulture;
-            return MyTaskFactory.StartNew(() =>
-            {
-                Thread.CurrentThread.CurrentCulture = culture;
-                Thread.CurrentThread.CurrentUICulture = cultureUi;
-                return func();
-            }).Unwrap().GetAwaiter().GetResult();
-        }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="func"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public static TResult TryRunSync<TResult>(Func< Task<TResult>> func,
+        /// <typeparam name="TResult">Result type</typeparam>
+        /// <param name="func">The asynchronous function to execute</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
+        /// <returns>The result of the asynchronous function</returns>
+        /// <exception cref="OperationCanceledException">Occurs when the operation is canceled</exception>
+        public static TResult? TryRunSync<TResult>(Func<Task<TResult?>> func,
             CancellationToken cancellationToken)
         {
-            var cultureUi = CultureInfo.CurrentUICulture;
-            var culture = CultureInfo.CurrentCulture;
-            return MyTaskFactory.StartNew(() =>
-            {
-                Thread.CurrentThread.CurrentCulture = culture;
-                Thread.CurrentThread.CurrentUICulture = cultureUi;
-                return func();
-            }, cancellationToken).Unwrap().GetAwaiter().GetResult();
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            return ExecuteWithCulturePreservation(func, cancellationToken);
         }
 
         /// <summary>
-        /// 
+        /// Attempts to synchronously execute an asynchronous function that accepts a cancellation token
         /// </summary>
-        /// <param name="func"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        public static TResult TryRunSync<TResult>(Func<CancellationToken, Task<TResult>> func,
+        /// <typeparam name="TResult">Result type</typeparam>
+        /// <param name="func">The asynchronous function to execute</param>
+        /// <param name="cancellationToken">The cancellation token to cancel the operation</param>
+        /// <returns>The result of the asynchronous function</returns>
+        /// <exception cref="OperationCanceledException">Occurs when the operation is canceled</exception>
+        public static TResult? TryRunSync<TResult>(Func<CancellationToken, Task<TResult?>> func,
             CancellationToken cancellationToken)
         {
-            var cultureUi = CultureInfo.CurrentUICulture;
-            var culture = CultureInfo.CurrentCulture;
-            return MyTaskFactory.StartNew(() =>
-            {
-                Thread.CurrentThread.CurrentCulture = culture;
-                Thread.CurrentThread.CurrentUICulture = cultureUi;
-                return func(cancellationToken);
-            }, cancellationToken).Unwrap().GetAwaiter().GetResult();
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            return ExecuteWithCulturePreservation(() => func(cancellationToken), cancellationToken);
         }
 
         /// <summary>
-        /// 
+        /// Execute an asynchronous function synchronously
         /// </summary>
-        /// <param name="func"></param>
+        /// <typeparam name="TResult">Result type</typeparam>
+        /// <param name="func">The asynchronous function to execute</param>
+        /// <returns>The result of the asynchronous function</returns>
+        public static TResult? RunSync<TResult>(Func<Task<TResult?>> func)
+        {
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            return ExecuteWithCulturePreservation(func, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Execute an asynchronous void function synchronously
+        /// </summary>
+        /// <param name="func">The asynchronous function to run</param>
         public static void RunSync(Func<Task> func)
         {
-            var cultureUi = CultureInfo.CurrentUICulture;
-            var culture = CultureInfo.CurrentCulture;
-            MyTaskFactory.StartNew(() =>
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            ExecuteWithCulturePreservation(func, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Execute an operation while preserving the current thread's cultural settings
+        /// </summary>
+        private static TResult? ExecuteWithCulturePreservation<TResult>(Func<Task<TResult?>> func,
+            CancellationToken cancellationToken)
+        {
+            var currentCulture = CultureInfo.CurrentCulture;
+            var currentUiCulture = CultureInfo.CurrentUICulture;
+
+            return Task.Run(() =>
             {
-                Thread.CurrentThread.CurrentCulture = culture;
-                Thread.CurrentThread.CurrentUICulture = cultureUi;
-                return func();
-            }).Unwrap().GetAwaiter().GetResult();
+                return ExceptionHandler.ExecuteAsAsync(async () =>
+                {
+                    Thread.CurrentThread.CurrentCulture = currentCulture;
+                    Thread.CurrentThread.CurrentUICulture = currentUiCulture;
+                    return await func().ConfigureAwait(false);
+                });
+            }, cancellationToken).GetAwaiter().GetResult();
         }
 
         /// <summary>
-        /// Runs a async method synchronously.
+        /// Execute an action by keeping the cultural settings of the current string (void version)
         /// </summary>
-        /// <param name="func">A function that returns a result</param>
-        /// <typeparam name="TResult">Result type</typeparam>
-        /// <returns>Result of the async operation</returns>
-        public static TResult RunAsSync<TResult>(Func<Task<TResult>> func)
+        private static void ExecuteWithCulturePreservation(Func<Task> func, CancellationToken cancellationToken)
         {
-            return AsyncContext.Run(func);
-        }
+            var currentCulture = CultureInfo.CurrentCulture;
+            var currentUiCulture = CultureInfo.CurrentUICulture;
 
-        /// <summary>
-        /// Runs a async method synchronously.
-        /// </summary>
-        /// <param name="action">An async action</param>
-        public static void RunAsSync(Func<Task> action)
-        {
-            AsyncContext.Run(action);
+            Task.Run(() =>
+            {
+                return ExceptionHandler.ExecuteAsync(async () =>
+                {
+                    Thread.CurrentThread.CurrentCulture = currentCulture;
+                    Thread.CurrentThread.CurrentUICulture = currentUiCulture;
+                    await func().ConfigureAwait(false);
+                });
+            }, cancellationToken).GetAwaiter().GetResult();
         }
     }
 }

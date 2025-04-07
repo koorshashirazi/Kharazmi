@@ -1,0 +1,46 @@
+{
+  "Global": {
+    "Enable": false,
+    "UseAi": true,
+    "TestInternalMethods": true,
+    "GenerateAssertions": true,
+    "GenerateMocks": true,
+    "GenerateTestData": true,
+    "UseTestDataSources": true,
+    "DefaultTestFramework": "XUnit",
+    "DefaultMockingFramework": "NSubstitute",
+    "DefaultAssertionFramework": "FluentAssertions"
+  },
+  "Namespaces": [],
+  "Classes": [],
+  "IncludePatterns": [
+    "Kharazmi.AspNetCore.Core.Functional**"
+  ],
+  "ExcludePatterns": [
+    "Kharazmi.AspNetCore.Core.Functional**Extensions",
+    "Kharazmi.AspNetCore.Core.Functional**Exception"
+
+  ],
+  "TestDataSources": [  ],
+  "AdditionalNamespaces": [
+    "System.Collections.Generic",
+    "System.Threading.Tasks",
+    "NSubstitute",
+    "FluentAssertions",
+    "AutoFixture",
+    "AutoFixture.AutoNSubstitute"
+  ],
+  "AiProviderConfig": {
+    "Enable": true,
+    "ProviderName": "Gemini",
+    "ApiScheme": "https",
+    "ApiHost": "generativelanguage.googleapis.com",
+    "ApiPort": 0,
+    "ApiKey": "AIzaSyC8hLBr9Ml7CabdhdMt0THqIM22tCf1T30",
+    "Timeout": 300,
+    "ModelName": "gemini-2.0-flash",
+    "Language": "en",
+    "Temperature": 0.7,
+    "TopP": 0.95
+  }
+}

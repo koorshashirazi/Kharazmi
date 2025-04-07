@@ -1,11 +1,8 @@
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Dispatchers;
 using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.IntegrationTests.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Controllers
 {
@@ -27,8 +24,8 @@ namespace Kharazmi.AspNetCore.Core.IntegrationTests.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var domainContext = await _domainContextService.GetAsync<AddUserCommand>().ConfigureAwait(false);
-            var result = await _dispatcher.SendCommandAsync(new AddUserCommand("", "koorsha"), domainContext,
+            var domainContext = await _domainContextService.GetAsync().ConfigureAwait(false);
+            var result = await _dispatcher.SendAsync(new AddUserDomainCommand("", "koorsha"), 
                 CancellationToken.None).ConfigureAwait(false);
 
      

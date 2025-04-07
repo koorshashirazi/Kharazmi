@@ -1,11 +1,10 @@
-﻿using System;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
+﻿using Kharazmi.AspNetCore.Core.Domain;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Models
 {
-    public class AddUserCommand : Command
+    public class AddUserDomainCommand : DomainCommand
     {
-        public AddUserCommand(string id, string name)
+        public AddUserDomainCommand(string id, string name)
         {
             Id = id ?? Guid.NewGuid().ToString("N");
             Name = name;

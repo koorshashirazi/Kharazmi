@@ -14,13 +14,13 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
     public class ValidationException : FrameworkException
     {
         /// <summary> </summary>
-        public IReadOnlyCollection<ValidationFailure> Failures { get; protected set; }
+        public HashSet<ValidationFailure> Failures { get; protected set; } = [];
 
 
         /// <summary>
         /// 
         /// </summary>
-        protected ValidationException() : this("", null, "", "", Enumerable.Empty<ValidationFailure>())
+        protected ValidationException() : this("", null, "", "", [])
         {
         }
 
@@ -34,11 +34,11 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <param name="description"></param>
         /// <param name="message"></param>
         protected ValidationException(
-            string message, Exception innerException,
+            string message, Exception? innerException,
             string description, string code,
-            IEnumerable<ValidationFailure> errors) : base(message, innerException, description, code)
+            HashSet<ValidationFailure> errors) : base(message, innerException, description, code)
         {
-            Failures = errors.AsReadOnly();
+            Failures = errors;
         }
 
 
@@ -46,12 +46,10 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// 
         /// </summary>
         /// <returns></returns>
-        public static ValidationException Empty() =>
-            new ValidationException("", null, "", "", Enumerable.Empty<ValidationFailure>());
+        public static ValidationException Empty() => new("", null, "", "", []);
 
 
-        public static ValidationException For(string message, Exception exception = null) =>
-            new ValidationException(message, exception, "", "", Enumerable.Empty<ValidationFailure>());
+        public static ValidationException For(string message, Exception? exception = null) => new(message, exception, "", "", []);
 
 
         /// <summary>
@@ -61,12 +59,14 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <param name="message"></param>
         /// <param name="exception"></param>
         /// <returns></returns>
-        public static ValidationException From(Result result, string message = "", Exception exception = null)
+        public static ValidationException From(Result result, string message = "", Exception? exception = null)
         {
+            if (result == null) throw new ArgumentNullException(nameof(result));
+            
             return For(message, exception)
-                .AddFailureMessages(result?.ValidationMessages)
-                .WithCode(result?.Code)
-                .WithDescription(result?.Description)
+                .AddFailureMessages([.. result.ValidationMessages])
+                .WithCode($"{result.FriendlyMessage.Code}")
+                .WithDescription(result.FriendlyMessage.Description)
                 .ToValidationException();
         }
 
@@ -74,38 +74,14 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="failure"></param>
-        /// <returns></returns>
-        public ValidationException AddFailureMessage(ValidationFailure failure)
-        {
-            if (Failures == null)
-                Failures = new List<ValidationFailure>();
-
-            if (failure != null)
-            {
-                var failureMessages = Failures.ToList();
-                failureMessages.Add(failure);
-                Failures = failureMessages.AsReadOnly();
-            }
-
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="failures"></param>
         /// <returns></returns>
-        public ValidationException AddFailureMessages(IEnumerable<ValidationFailure> failures)
+        public ValidationException AddFailureMessages(params ValidationFailure [] failures)
         {
-            if (Failures == null)
-                Failures = new List<ValidationFailure>();
-
-            if (failures != null)
+            if (failures == null) throw new ArgumentNullException(nameof(failures));
+            foreach (var failure in failures)
             {
-                var failureMessages = Failures.ToList();
-                failureMessages.AddRange(failures);
-                Failures = failureMessages.AsReadOnly();
+                Failures.Add(failure);
             }
 
             return this;

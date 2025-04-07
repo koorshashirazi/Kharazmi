@@ -81,7 +81,7 @@ namespace Kharazmi.MongoDb.Cache
             var utcNow = DateTimeOffset.UtcNow;
 
             if (key == null)
-                throw new MongoDbException($"Argument null reference {nameof(key)}").WithDetailsJsonException();
+                throw new MongoDbException($"Argument null reference {nameof(key)}");
 
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -93,8 +93,7 @@ namespace Kharazmi.MongoDb.Cache
                 absoluteExpiration = utcNow.Add(options.AbsoluteExpirationRelativeToNow.Value);
 
             if (absoluteExpiration <= utcNow)
-                throw new MongoDbException("The absolute expiration value must be in the future.")
-                    .WithDetailsJsonException();
+                throw new MongoDbException("The absolute expiration value must be in the future.");
 
             var expiresAt = GetExpiresAt(utcNow, slidingExpirationInSeconds, absoluteExpiration);
             var cacheItem = new CacheItem()

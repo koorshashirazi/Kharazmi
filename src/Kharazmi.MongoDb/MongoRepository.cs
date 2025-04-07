@@ -44,7 +44,7 @@ namespace Kharazmi.MongoDb
 
         public TEntity FindById(string id)
         {
-            return AsyncHelper.RunAsSync(() => FindByIdAsync(id));
+            return AsyncHelper.RunSync(() => FindByIdAsync(id));
         }
 
         public Task<TEntity> FindByIdAsync(string id, CancellationToken cancellationToken = default)
@@ -54,7 +54,7 @@ namespace Kharazmi.MongoDb
 
         public TEntity FindBy(Expression<Func<TEntity, bool>> predicate)
         {
-            return AsyncHelper.RunAsSync(() => FindByAsync(predicate));
+            return AsyncHelper.RunSync(() => FindByAsync(predicate));
         }
 
         public Task<TEntity> FindByAsync(Expression<Func<TEntity, bool>> predicate,
@@ -86,7 +86,7 @@ namespace Kharazmi.MongoDb
 
         public int Count()
         {
-            return AsyncHelper.RunAsSync(() => CountAsync(CancellationToken.None));
+            return AsyncHelper.RunSync(() => CountAsync(CancellationToken.None));
         }
 
         public int Count(Expression<Func<TEntity, bool>> predication)
@@ -134,7 +134,7 @@ namespace Kharazmi.MongoDb
         public PagedList<TEntity> PageBy<TOrderKey>(Expression<Func<TEntity, TOrderKey>> orderBy,
             Expression<Func<TEntity, bool>> predication = null, int pageSize = 10, int page = 1, bool isAsc = true)
         {
-            return AsyncHelper.RunAsSync(() => PageByAsync(orderBy, predication, pageSize, page, isAsc));
+            return AsyncHelper.RunSync(() => PageByAsync(orderBy, predication, pageSize, page, isAsc));
         }
 
         public Task<PagedList<TEntity>> PageByAsync<TOrderKey>(
@@ -161,12 +161,12 @@ namespace Kharazmi.MongoDb
 
         public void Insert(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => InsertAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => InsertAsync(entity, CancellationToken.None));
         }
 
         public void InsertTransaction(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => InsertTransactionAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => InsertTransactionAsync(entity, CancellationToken.None));
         }
 
         public Task InsertAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -185,12 +185,12 @@ namespace Kharazmi.MongoDb
 
         public void Insert(IEnumerable<TEntity> entities)
         {
-            AsyncHelper.RunAsSync(() => InsertAsync(entities, CancellationToken.None));
+            AsyncHelper.RunSync(() => InsertAsync(entities, CancellationToken.None));
         }
 
         public void InsertTransaction(IEnumerable<TEntity> entities)
         {
-            AsyncHelper.RunAsSync(() => InsertTransactionAsync(entities, CancellationToken.None));
+            AsyncHelper.RunSync(() => InsertTransactionAsync(entities, CancellationToken.None));
         }
 
         public Task InsertAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
@@ -219,12 +219,12 @@ namespace Kharazmi.MongoDb
 
         public void Update(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => UpdateAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => UpdateAsync(entity, CancellationToken.None));
         }
 
         public void UpdateTransaction(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => UpdateTransactionAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => UpdateTransactionAsync(entity, CancellationToken.None));
         }
 
         public Task UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -244,12 +244,12 @@ namespace Kharazmi.MongoDb
 
         public void Update(IEnumerable<TEntity> entities)
         {
-            AsyncHelper.RunAsSync(() => UpdateAsync(entities, CancellationToken.None));
+            AsyncHelper.RunSync(() => UpdateAsync(entities, CancellationToken.None));
         }
 
         public void FindAndUpdate(Expression<Func<TEntity, bool>> findQuery, UpdateDefinition<TEntity> updateQuery)
         {
-            AsyncHelper.RunAsSync(() => FindAndUpdateAsync(findQuery, updateQuery, CancellationToken.None));
+            AsyncHelper.RunSync(() => FindAndUpdateAsync(findQuery, updateQuery, CancellationToken.None));
         }
 
         public async Task FindAndUpdateAsync(Expression<Func<TEntity, bool>> findQuery,
@@ -284,7 +284,7 @@ namespace Kharazmi.MongoDb
 
         public void UpdateTransaction(IEnumerable<TEntity> entities)
         {
-            AsyncHelper.RunAsSync(() => UpdateTransactionAsync(entities, CancellationToken.None));
+            AsyncHelper.RunSync(() => UpdateTransactionAsync(entities, CancellationToken.None));
         }
 
         public async Task UpdateAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
@@ -306,12 +306,12 @@ namespace Kharazmi.MongoDb
 
         public void Delete(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => DeleteAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => DeleteAsync(entity, CancellationToken.None));
         }
 
         public void DeleteTransaction(TEntity entity)
         {
-            AsyncHelper.RunAsSync(() => DeleteTransactionAsync(entity, CancellationToken.None));
+            AsyncHelper.RunSync(() => DeleteTransactionAsync(entity, CancellationToken.None));
         }
 
         public Task DeleteAsync(TEntity entity, CancellationToken cancellationToken = default)

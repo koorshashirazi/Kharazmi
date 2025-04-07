@@ -1,5 +1,4 @@
-﻿using System;
-using Kharazmi.AspNetCore.Core.Domain.Entities;
+﻿using Kharazmi.AspNetCore.Core.Domain.Entities;
 
 namespace Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.SpeechAggregate
 {

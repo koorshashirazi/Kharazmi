@@ -7,6 +7,7 @@
         <RootNamespace>Kharazmi.AspNetCore.Cqrs</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -15,6 +16,8 @@
 
     <ItemGroup>
         <PackageReference Include="MediatR" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">

@@ -13,25 +13,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions"/>
-        <PackageReference Include="Polly"/>
-        <PackageReference Include="RawRabbit"/>
-        <PackageReference Include="RawRabbit.DependencyInjection.ServiceCollection"/>
-        <PackageReference Include="RawRabbit.Enrichers.Attributes"/>
-        <PackageReference Include="RawRabbit.Enrichers.Polly"/>
-        <PackageReference Include="RawRabbit.Enrichers.MessageContext"/>
-        <PackageReference Include="RawRabbit.Enrichers.MessageContext.Subscribe"/>
-        <PackageReference Include="RawRabbit.Enrichers.RetryLater"/>
-        <PackageReference Include="RawRabbit.Operations.Publish"/>
-        <PackageReference Include="RawRabbit.Operations.Subscribe"/>
+        <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        
+        <PackageReference Include="Polly" />
+        <PackageReference Include="RawRabbit" />
+        <PackageReference Include="RawRabbit.DependencyInjection.ServiceCollection" />
+        <PackageReference Include="RawRabbit.Enrichers.Attributes" />
+        <PackageReference Include="RawRabbit.Enrichers.Polly" />
+        <PackageReference Include="RawRabbit.Enrichers.MessageContext" />
+        <PackageReference Include="RawRabbit.Enrichers.MessageContext.Subscribe" />
+        <PackageReference Include="RawRabbit.Enrichers.RetryLater" />
+        <PackageReference Include="RawRabbit.Operations.Publish" />
+        <PackageReference Include="RawRabbit.Operations.Subscribe" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+        <PackageReference Include="Kharazmi.AspNetCore.Core" />
     </ItemGroup>
 
 </Project>

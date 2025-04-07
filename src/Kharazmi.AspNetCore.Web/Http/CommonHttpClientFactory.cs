@@ -75,7 +75,7 @@ namespace Kharazmi.AspNetCore.Web.Http
         /// <returns></returns>
         public  Task<DiscoveryDocumentResponse> GetDiscoveryResponseAsync(string baseAddress)
         {
-            Ensure.IsNotEmpty(baseAddress, nameof(baseAddress));
+            Ensure.ArgumentIsNotEmpty(baseAddress, nameof(baseAddress));
 
             return  GetOrCreate(baseAddress).GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
@@ -94,7 +94,7 @@ namespace Kharazmi.AspNetCore.Web.Http
         /// <returns></returns>
         public DiscoveryDocumentResponse GetDiscoveryResponse(string baseAddress)
         {
-            Ensure.IsNotEmpty(baseAddress, nameof(baseAddress));
+            Ensure.ArgumentIsNotEmpty(baseAddress, nameof(baseAddress));
 
             var disco = GetOrCreate(baseAddress).GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {
@@ -118,7 +118,7 @@ namespace Kharazmi.AspNetCore.Web.Http
         /// <returns></returns>
         public Task<DiscoveryResponse> GetDiscoveryResponseAsync(string baseAddress)
         {
-            Ensure.IsNotEmpty(baseAddress, nameof(baseAddress));
+            Ensure.ArgumentIsNotEmpty(baseAddress, nameof(baseAddress));
 
             return GetOrCreate(baseAddress).GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest
             {

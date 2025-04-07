@@ -18,10 +18,35 @@ public sealed record InstanceCreatorOptions(uint Capacity, bool EnableLru = true
     public bool EnableLru { get; set; } = EnableLru;
 }
 
+public interface IInstanceCreator
+{
+    /// <summary>
+    /// Creates an instance of the specified type using the provided parameters.
+    /// </summary>
+    /// <param name="concreteType">The type of the object to create.</param>
+    /// <param name="options">Optional instance creator options.</param>
+    /// <param name="primitiveArguments">Optional primitive arguments for the constructor.</param>
+    /// <returns>An object of the specified type.</returns>
+    object CreateInstance(Type concreteType, Action<InstanceCreatorOptions>? options = null,
+        params object[] primitiveArguments);
+
+    /// <summary>
+    /// Creates an instance of type T with the given options.
+    /// </summary>
+    /// <typeparam name="T">The type of the instance to create.</typeparam>
+    /// <param name="options">The optional options for creating the instance.</param>
+    /// <param name="primitiveArguments"></param>
+    /// <returns>An instance of type T.</returns>
+    T CreateInstance<T>(Action<InstanceCreatorOptions>? options = null,
+        params object[] primitiveArguments);
+
+    void Dispose();
+}
+
 /// <summary>
 /// The InstanceCreator class provides methods for creating instances of types.
 /// </summary>
-public sealed class InstanceCreator : IDisposable
+public class InstanceCreator : IDisposable, IInstanceCreator
 {
     /// <summary>
     /// Dictionary that contains constructor information for types.

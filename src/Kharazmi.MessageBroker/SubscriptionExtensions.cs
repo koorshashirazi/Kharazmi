@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
-using Kharazmi.AspNetCore.Core.Domain.Events;
+using Kharazmi.AspNetCore.Core.Domain;
 
 namespace Kharazmi.MessageBroker
 {
@@ -33,7 +32,7 @@ namespace Kharazmi.MessageBroker
         }
 
         private static IBusSubscriber SubscribeAllCommands(this IBusSubscriber subscriber)
-            => subscriber.SubscribeAllMessages<ICommand>(nameof(IBusSubscriber.SubscribeCommand));
+            => subscriber.SubscribeAllMessages<IDomainCommand>(nameof(IBusSubscriber.SubscribeCommand));
 
         private static IBusSubscriber SubscribeAllEvents(this IBusSubscriber subscriber)
             => subscriber.SubscribeAllMessages<IDomainEvent>(nameof(IBusSubscriber.SubscribeEvent));

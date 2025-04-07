@@ -23,7 +23,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         public static IQueryable<T> WhereIf<T>(this IQueryable<T> query, bool condition,
             Expression<Func<T, bool>> predicate)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
 
             return condition
                 ? query.Where(predicate)
@@ -88,24 +88,24 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <returns></returns>
         public static IQueryable<T> ApplyFiltering<T>(this IQueryable<T> query, IFilteredPagedQueryModel model)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             return query.ApplyFiltering(model.Filter);
         }
 
         public static IQueryable<T> ApplySorting<T>(this IQueryable<T> query, IPagedQueryModel model)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             return query.ApplySorting(model.SortExpression);
         }
 
         public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, IPagedQueryModel model)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
-            Guard.ArgumentNotNull(model, nameof(model));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(model, nameof(model));
 
             if (model.Page < 1) model.Page = 1;
 
@@ -116,7 +116,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static IQueryable<T> ApplyFiltering<T>(this IQueryable<T> query, Filter filter)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
 
             if (filter?.Logic == null) return query;
 
@@ -136,15 +136,15 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static IQueryable<T> ApplySorting<T>(this IQueryable<T> query, string sortExpression)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
-            Guard.ArgumentNotEmpty(sortExpression, nameof(sortExpression));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotEmpty(sortExpression, nameof(sortExpression));
 
             return query.OrderBy(x=> sortExpression.Replace('_', ' '));
         }
 
         public static IQueryable<T> ApplyPaging<T>(this IQueryable<T> query, int page, int pageSize)
         {
-            Guard.ArgumentNotNull(query, nameof(query));
+            Ensure.ArgumentIsNotNull(query, nameof(query));
 
             var skip = (page - 1) * pageSize;
             var take = pageSize;

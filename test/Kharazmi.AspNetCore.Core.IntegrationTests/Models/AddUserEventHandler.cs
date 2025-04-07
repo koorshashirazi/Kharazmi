@@ -1,20 +1,21 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Kharazmi.AspNetCore.Core.Dispatchers;
 using Kharazmi.AspNetCore.Core.Functional;
+using Kharazmi.AspNetCore.Core.Handlers;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Models
 {
-    public class AddUserEventHandler : Handlers.EventHandler<AddUserDomainEvent>
+    public class AddUserDomainEventHandler : DomainEventHandler<AddUserDomainEvent>
     {
+        private readonly IDomainDispatcher _domainDispatcher;
 
-        public AddUserEventHandler(IServiceProvider serviceProvider) : base(serviceProvider)
+        public AddUserDomainEventHandler(IDomainDispatcher domainDispatcher)
         {
+            _domainDispatcher = domainDispatcher;
         }
 
-        public override Task<Result> TryHandleAsync(CancellationToken cancellationToken = default)
+        public override Task<Result> HandleAsync(AddUserDomainEvent domainEvent, CancellationToken token = default)
         {
-            return RaiseEventAsync(new AddedUserDomainEvent(Event.Id, Event.Name), cancellationToken);
+            return _domainDispatcher.RaiseAsync(domainEvent, token);
         }
     }
 }

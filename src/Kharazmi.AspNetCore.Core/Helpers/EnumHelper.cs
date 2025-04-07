@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -118,7 +118,7 @@ namespace Kharazmi.AspNetCore.Core.Helpers
         /// <returns></returns>
         public static List<SelectListItem> ToSelectListItem<T>() where T : struct, IComparable
         {
-            return Enum.GetValues(typeof (T)).Cast<T>().Select(x => new SelectListItem(x.ToString(), Convert.ToInt16(x).ToString())).ToList();
+            return [.. Enum.GetValues(typeof (T)).Cast<T>().Select(x => new SelectListItem(x.ToString(), Convert.ToInt16(x).ToString()))];
         }
     }
 }

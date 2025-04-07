@@ -1,5 +1,4 @@
-﻿using System;
-using Kharazmi.AspNetCore.Localization.IntegrationTests.Resources;
+﻿using Kharazmi.AspNetCore.Localization.IntegrationTests.Resources;
 using Kharazmi.AspNetCore.Localization.Json.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;

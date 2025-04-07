@@ -1,6 +1,3 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-
 namespace Kharazmi.AspNetCore.Localization.IntegrationTests
 {
     public class Program

@@ -33,7 +33,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
             if (type.IsGenericType)
             {
-                var genericTypes = string.Join(",", type.GetGenericArguments().Select(t => t.Name).ToArray());
+                var genericTypes = string.Join(",", [.. type.GetGenericArguments().Select(t => t.Name)]);
                 typeName = $"{type.Name.Remove(type.Name.IndexOf('`'))}<{genericTypes}>";
             }
             else
@@ -198,7 +198,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static bool IsConstructable(this Type type)
         {
-            Guard.ArgumentNotNull(type, nameof(type));
+            Ensure.ArgumentIsNotNull(type, nameof(type));
 
             if (type.IsAbstract || type.IsInterface || type.IsArray || type.IsGenericTypeDefinition ||
                 type == typeof(void))
@@ -227,7 +227,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         [DebuggerStepThrough]
         public static bool HasDefaultConstructor(this Type type)
         {
-            Guard.ArgumentNotNull(type, nameof(type));
+            Ensure.ArgumentIsNotNull(type, nameof(type));
 
             if (type.IsValueType)
                 return true;
@@ -244,8 +244,8 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static bool IsSubClass(this Type type, Type check, out Type implementingType)
         {
-            Guard.ArgumentNotNull(type, nameof(type));
-            Guard.ArgumentNotNull(check, nameof(check));
+            Ensure.ArgumentIsNotNull(type, nameof(type));
+            Ensure.ArgumentIsNotNull(check, nameof(check));
 
             return IsSubClassInternal(type, type, check, out implementingType);
         }
@@ -290,7 +290,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static bool IsIndexed(this PropertyInfo property)
         {
-            Guard.ArgumentNotNull(property, nameof(property));
+            Ensure.ArgumentIsNotNull(property, nameof(property));
             return !property.GetIndexParameters().IsNullOrEmpty();
         }
 
@@ -303,7 +303,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// </returns>
         public static bool IsIndexed(this MemberInfo member)
         {
-            Guard.ArgumentNotNull(member, nameof(member));
+            Ensure.ArgumentIsNotNull(member, nameof(member));
 
             var propertyInfo = member as PropertyInfo;
 
@@ -342,7 +342,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static string GetNameAndAssemblyName(this Type type)
         {
-            Guard.ArgumentNotNull(type, nameof(type));
+            Ensure.ArgumentIsNotNull(type, nameof(type));
             return type.FullName + ", " + type.Assembly.GetName().Name;
         }
 
@@ -370,7 +370,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         public static List<MemberInfo> FindMembers(this Type targetType, MemberTypes memberType,
             BindingFlags bindingAttr, MemberFilter filter, object filterCriteria)
         {
-            Guard.ArgumentNotNull(targetType, nameof(targetType));
+            Ensure.ArgumentIsNotNull(targetType, nameof(targetType));
 
             var memberInfos =
                 new List<MemberInfo>(targetType.FindMembers(memberType, bindingAttr, filter, filterCriteria));
@@ -413,9 +413,9 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         public static object CreateGeneric(this Type genericTypeDefinition, Type[] innerTypes,
             Func<Type, object[], object> instanceCreator, params object[] args)
         {
-            Guard.ArgumentNotNull(genericTypeDefinition, nameof(genericTypeDefinition));
-            Guard.ArgumentNotNull(innerTypes, nameof(innerTypes));
-            Guard.ArgumentNotNull(instanceCreator, nameof(instanceCreator));
+            Ensure.ArgumentIsNotNull(genericTypeDefinition, nameof(genericTypeDefinition));
+            Ensure.ArgumentIsNotNull(innerTypes, nameof(innerTypes));
+            Ensure.ArgumentIsNotNull(instanceCreator, nameof(instanceCreator));
             if (innerTypes.Length == 0)
                 throw Error.Argument(nameof(innerTypes), "The sequence must contain at least one entry.");
 
@@ -426,7 +426,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static IList CreateGenericList(this Type listType)
         {
-            Guard.ArgumentNotNull(listType, nameof(listType));
+            Ensure.ArgumentIsNotNull(listType, nameof(listType));
             return (IList)typeof(List<>).CreateGeneric(listType);
         }
 
@@ -441,7 +441,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static bool IsEnumerable(this Type type)
         {
-            Guard.ArgumentNotNull(type, nameof(type));
+            Ensure.ArgumentIsNotNull(type, nameof(type));
             return type.IsAssignableFrom(typeof(IEnumerable));
         }
 
@@ -474,8 +474,8 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <returns>The member's value on the object.</returns>
         public static object GetValue(this MemberInfo member, object target)
         {
-            Guard.ArgumentNotNull(member, nameof(member));
-            Guard.ArgumentNotNull(target, nameof(target));
+            Ensure.ArgumentIsNotNull(member, nameof(member));
+            Ensure.ArgumentIsNotNull(target, nameof(target));
 
             switch (member.MemberType)
             {
@@ -498,8 +498,8 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <param name="value">The value.</param>
         public static void SetValue(this MemberInfo member, object target, object value)
         {
-            Guard.ArgumentNotNull(member, nameof(member));
-            Guard.ArgumentNotNull(target, nameof(target));
+            Ensure.ArgumentIsNotNull(member, nameof(member));
+            Ensure.ArgumentIsNotNull(target, nameof(target));
 
             switch (member.MemberType)
             {
@@ -608,7 +608,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
                 .GetCustomAttributes(typeof(TAttribute), inherits)
                 .Cast<TAttribute>();
 
-            return attributes.ToArray();
+            return [.. attributes];
 
             #region Obsolete
 
@@ -665,7 +665,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
             }
 
             attributes.AddRange(GetAttributes<TAttribute>(member, inherits));
-            return attributes.ToArray();
+            return [.. attributes];
         }
 
 
@@ -677,7 +677,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         /// <returns>PropertyInfo for the property, or null if method is not part of a property.</returns>
         public static PropertyInfo GetPropertyFromMethod(this MethodBase method)
         {
-            Guard.ArgumentNotNull(method, nameof(method));
+            Ensure.ArgumentIsNotNull(method, nameof(method));
 
             PropertyInfo property = null;
             if (method.IsSpecialName)
@@ -753,9 +753,9 @@ namespace Kharazmi.AspNetCore.Core.Extensions
 
         public static List<TFieldType> GetFieldsOfType<TFieldType>(this Type type)
         {
-            return type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            return [.. type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
                 .Where(p => type.IsAssignableFrom(p.FieldType))
-                .Select(pi => (TFieldType)pi.GetValue(null)).ToList();
+                .Select(pi => (TFieldType)pi.GetValue(null))];
         }
 
         private static readonly ConcurrentDictionary<Type, string> PrettyPrintCache =

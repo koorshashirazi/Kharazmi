@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Title>Kharazmi.AspNetCore.Cqes.EfCore</Title>
@@ -20,6 +20,10 @@
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
         <PackageReference Include="Kharazmi.AspNetCore.Cqrs" />
         <PackageReference Include="Kharazmi.AspNetCore.EfCore" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
     </ItemGroup>
 
 </Project>

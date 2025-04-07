@@ -102,7 +102,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         {
             return string.IsNullOrWhiteSpace(text)
                 ? string.Empty
-                : new string(text.Where(c => !char.IsPunctuation(c)).ToArray());
+                : new string([.. text.Where(c => !char.IsPunctuation(c))]);
 
         }
         [DebuggerStepThrough]
@@ -333,7 +333,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
 
-            return new string(str.Where(c => char.IsDigit(c)).ToArray());
+            return new string([.. str.Where(c => char.IsDigit(c))]);
         }
 
 
@@ -1304,12 +1304,11 @@ namespace Kharazmi.AspNetCore.Core.Extensions
                 return nullOrWhitespaceInputReturnsNull ? null : new List<string>();
             }
 
-            return csvList
+            return [.. csvList
                 .TrimEnd(',')
                 .Split(',')
                 .AsEnumerable()
-                .Select(s => s.Trim())
-                .ToList();
+                .Select(s => s.Trim())];
         }
      
         /// <summary>

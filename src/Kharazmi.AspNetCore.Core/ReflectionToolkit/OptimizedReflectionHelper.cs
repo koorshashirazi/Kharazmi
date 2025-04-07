@@ -199,7 +199,7 @@ public static class OptimizedReflectionHelper
         }
 
         var delegateType = Expression.GetDelegateType(
-            paramTypes.Concat(new[] { methodInfo.ReturnType }).ToArray());
+            [.. paramTypes, .. new[] { methodInfo.ReturnType }]);
 
         var paramExpressions = new ParameterExpression[paramTypes.Length];
         for (int i = 0; i < paramTypes.Length; i++)

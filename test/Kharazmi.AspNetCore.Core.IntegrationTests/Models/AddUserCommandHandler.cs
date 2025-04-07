@@ -1,47 +1,57 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Kharazmi.AspNetCore.Core.Dispatchers;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.Handlers;
 using Kharazmi.AspNetCore.Core.Pipelines;
 using Kharazmi.MessageBroker;
-using Microsoft.Extensions.Logging;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests.Models
 {
-    [PipelineBehavior(typeof(LoggerCommandPipeline<>))]
-    public class AddUserCommandHandler : CommandHandler<AddUserCommand>
+    [PipelineBehavior(typeof(LoggerDomainCommandPipeline<>))]
+    public class AddUserDomainCommandHandler : DomainCommandHandler<AddUserDomainCommand>
     {
         private readonly IBusManager _busManager;
-        private readonly ILogger<AddUserCommandHandler> _logger;
+        private readonly ILogger<AddUserDomainCommandHandler> _logger;
+        private readonly IDomainContextService _contextService;
+        private readonly IDomainDispatcher _domainDispatcher;
+        private readonly ICommandValidationHandler<AddUserDomainCommand> _commandValidationHandler;
+        private readonly IDomainNotificationHandler _notificationHandler;
 
-        public AddUserCommandHandler(
+        public AddUserDomainCommandHandler(
             IBusManager busManager,
-            ILogger<AddUserCommandHandler> logger,
-            IServiceProvider serviceProvider) : base(serviceProvider)
+            IDomainContextService contextService,
+            IDomainDispatcher domainDispatcher,
+            ICommandValidationHandler<AddUserDomainCommand> commandValidationHandler,
+            IDomainNotificationHandler notificationHandler,
+            ILogger<AddUserDomainCommandHandler> logger)
         {
             _busManager = busManager;
             _logger = logger;
+            _contextService = contextService;
+            _domainDispatcher = domainDispatcher;
+            _commandValidationHandler = commandValidationHandler;
+            _notificationHandler = notificationHandler;
         }
 
 
-        public override async Task<Result> TryHandleAsync(CancellationToken cancellationToken = default)
+        public override async Task<Result> HandleAsync(AddUserDomainCommand command, CancellationToken token = default)
         {
             _logger.LogInformation("From AddUserHandler");
          
             // Store command in db
             // ..
             // Tes message broker
-            await _busManager.PublishEventAsync(new AddUserDomainEvent(Command.Id, Command.Name), DomainContext, cancellationToken).ConfigureAwait(false);
+            var context = await _contextService.GetAsync();
+            await _busManager.PublishEventAsync(new AddUserDomainEvent(command.Id, command.Name),context, token).ConfigureAwait(false);
             
             // Test domain notification
-            await RaiseEventAsync(DomainNotificationDomainEvent.For("test"), cancellationToken)
+            await _domainDispatcher.RaiseAsync(DomainNotificationDomainEvent.For("test"), token)
                 .ConfigureAwait(false);
             
             // Test manuel command validation 
-            var result = await ValidateCommandAsync(cancellationToken).ConfigureAwait(false);
-            var f = await DomainNotifier.GetNotificationsAsync().ConfigureAwait(false);
+            var result = await _commandValidationHandler.HandleAsync(command,token).ConfigureAwait(false);
+            var f = await _notificationHandler.GetNotificationsAsync().ConfigureAwait(false);
             
             return Result.Ok(f);
         }

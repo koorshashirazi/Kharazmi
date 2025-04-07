@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.GuardToolkit;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace Kharazmi.AspNetCore.Validation
 {
     internal class CommandValidationHandler<TRequest> : ICommandValidationHandler<TRequest>
-        where TRequest : Command
+        where TRequest : DomainCommand
 
     {
         private readonly IValidator<TRequest> _validator;

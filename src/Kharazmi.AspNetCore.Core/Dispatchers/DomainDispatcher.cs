@@ -1,10 +1,7 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Commands;
-using Kharazmi.AspNetCore.Core.Domain.Events;
-using Kharazmi.AspNetCore.Core.Domain.Queries;
-using Kharazmi.AspNetCore.Core.EventSourcing;
 using Kharazmi.AspNetCore.Core.Functional;
 
 namespace Kharazmi.AspNetCore.Core.Dispatchers
@@ -12,77 +9,53 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
     /// <summary>
     /// 
     /// </summary>
-    public interface IDomainDispatcher
+    public interface IDomainDispatcher:  IDomainEventDispatcher, IDomainCommandDispatcher, IDomainQueryDispatcher
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="command"></param>
-        /// <param name="domainContext"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TCommand"></typeparam>
-        /// <returns></returns>
-        Task<Result> SendCommandAsync<TCommand>(TCommand command, DomainContext domainContext,
-            CancellationToken cancellationToken = default) where TCommand : ICommand;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="event"></param>
-        /// <param name="domainContext"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TEvent"></typeparam>
-        /// <returns></returns>
-        Task<Result> RaiseEventAsync<TEvent>(TEvent @event, DomainContext domainContext,
-            CancellationToken cancellationToken = default) where TEvent : class, IDomainEvent;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="query"></param>
-        /// <param name="domainContext"></param>
-        /// <param name="cancellationToken"></param>
-        /// <typeparam name="TResult"></typeparam>
-        /// <returns></returns>
-        Task<TResult> QueryResultAsync<TResult>(IQuery<TResult> query, DomainContext domainContext,
-            CancellationToken cancellationToken = default);
+        Task<Result> RaiseAsync<TEvent>(TEvent domainEvent, CancellationToken token = default)
+            where TEvent : class, IDomainEvent;
+        
+        Task<Result> SendAsync<TCommand>(TCommand command, CancellationToken token = default)
+            where TCommand : class, IDomainCommand;
+        
+        Task<Result<TResult>> QueryAsync<TQuery, TResult>(TQuery domainQuery, CancellationToken token = default)
+            where TQuery : class, IDomainQuery;    
+    
+        IAsyncEnumerable<TResult> QueryStreamAsync<TQuery, TResult>(TQuery domainQuery, CancellationToken token = default)
+            where TQuery : class, IDomainQuery;
+        
     }
 
     internal class DomainDispatcher : IDomainDispatcher
     {
-        private readonly ICommandDispatcher _commandDispatcher;
-        private readonly IEventDispatcher _eventDispatcher;
-        private readonly IQueryDispatcher _queryDispatcher;
+        private readonly IDomainCommandDispatcher _domainCommandDispatcher;
+        private readonly IDomainEventDispatcher _domainEventDispatcher;
+        private readonly IDomainQueryDispatcher _domainQueryDispatcher;
 
         public DomainDispatcher(
-            ICommandDispatcher commandDispatcher,
-            IEventDispatcher eventDispatcher,
-            IQueryDispatcher queryDispatcher,
-            EventSourcingOptions eventSourcingOptions,
-            IEventStore eventStore)
+            IDomainCommandDispatcher domainCommandDispatcher,
+            IDomainEventDispatcher domainEventDispatcher,
+            IDomainQueryDispatcher domainQueryDispatcher)
         {
-            _commandDispatcher = commandDispatcher;
-            _eventDispatcher = eventDispatcher;
-            _queryDispatcher = queryDispatcher;
+            _domainCommandDispatcher = domainCommandDispatcher;
+            _domainEventDispatcher = domainEventDispatcher;
+            _domainQueryDispatcher = domainQueryDispatcher;
         }
 
 
-        public Task<Result> SendCommandAsync<TCommand>(TCommand command, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
-            where TCommand : ICommand
-        {
-            return _commandDispatcher.SendAsync(command, domainContext, cancellationToken);
-        }
+        public Task<Result<TResult>> QueryAsync<TQuery, TResult>(TQuery domainQuery, CancellationToken token = default)
+            where TQuery : class, IDomainQuery =>
+            _domainQueryDispatcher.QueryAsync<TQuery, TResult>(domainQuery, token);
 
-        public async Task<Result> RaiseEventAsync<TEvent>(TEvent @event, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TResult> QueryStreamAsync<TQuery, TResult>(TQuery domainQuery,
+            CancellationToken token = default) where TQuery : class, IDomainQuery
+            => _domainQueryDispatcher.QueryStreamAsync<TQuery, TResult>(domainQuery, token);
+
+        public Task<Result> RaiseAsync<TEvent>( TEvent domainEvent, CancellationToken token = default)
             where TEvent : class, IDomainEvent
-        {
-            return await _eventDispatcher.RaiseAsync(@event, domainContext, cancellationToken).ConfigureAwait(false);
-        }
+            => _domainEventDispatcher.RaiseAsync(domainEvent, token);
 
-        public Task<TResult> QueryResultAsync<TResult>(IQuery<TResult> query, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
-            => _queryDispatcher.QueryAsync(query, domainContext, cancellationToken);
+        public Task<Result> SendAsync<TCommand>(TCommand command, CancellationToken token = default)
+            where TCommand : class, IDomainCommand
+            => _domainCommandDispatcher.SendAsync(command, token);
     }
 }

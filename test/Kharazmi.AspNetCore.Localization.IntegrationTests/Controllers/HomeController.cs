@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using Kharazmi.AspNetCore.Core.Linq;
 using Kharazmi.AspNetCore.Localization.EFCore;

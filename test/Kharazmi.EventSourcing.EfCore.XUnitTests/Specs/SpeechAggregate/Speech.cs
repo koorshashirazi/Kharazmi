@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Kharazmi.AspNetCore.Core.Domain.Aggregates;
+﻿using Kharazmi.AspNetCore.Core.Domain.Aggregates;
 using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Events;
 using Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.Exceptions;

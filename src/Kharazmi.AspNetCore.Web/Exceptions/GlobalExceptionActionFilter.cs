@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Exceptions;
@@ -131,12 +131,12 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                             if (result != null)
                             {
                                 tempData.AddNotification(NotificationOptions.For(NotificationType.Error,
-                                    result.Description, result.Code));
+                                    result.FriendlyMessage.Description, result.ResultType));
 
                                 foreach (var resultMessage in result.Messages)
                                 {
                                     tempData.AddNotification(NotificationOptions.For(NotificationType.Error,
-                                        resultMessage.Description, resultMessage.Code));
+                                        resultMessage.Description, resultMessage.MessageType));
                                 }
 
                                 foreach (var validationMessage in result.ValidationMessages)
@@ -162,7 +162,7 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                         var redirectResult = RedirectResultExceptionOptions.ActionName.IsEmpty() ||
                                              RedirectResultExceptionOptions.ControllerName.IsEmpty()
                             ? new RedirectToActionResult(DefaultActionName, DefaultControllerName,
-                                new {isAjaxRequest = false})
+                                new { isAjaxRequest = false })
                             : new RedirectToActionResult(RedirectResultExceptionOptions.ActionName,
                                 RedirectResultExceptionOptions.ControllerName,
                                 RedirectResultExceptionOptions.RouteData);
@@ -200,12 +200,11 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
 
         protected virtual void HandleGlobalException(ExceptionContext context)
         {
-            var ex = context.HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
-            var errors = ex?.CollectExceptionIncludeInnerException();
-            if (errors == null) return;
-            foreach (var error in errors)
-                _logger.LogError(
-                    $"Global Exception: \n ErrorCode: \t {error.Code} \n Description: \t {error.Description}");
+            var ex = context?.HttpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+            var errors = ex?.AsJsonException();
+            if (errors is null) return;
+
+            _logger.LogError("Global Exception: {JsonException}", errors);
         }
 
         protected virtual void HandleDomainException(ExceptionContext context)
@@ -216,17 +215,16 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                 {
                     _logger.LogError("Domain exception {Code} , {Message}",
                         domainException.Code, domainException.Message);
-                    
+
                     foreach (var exception in domainException.ExceptionErrors)
-                        _logger.LogError("Domain exception {Code} , {Description}",
-                            exception.Code, exception.Description);
+                        _logger.LogError("Domain exception  {ErrorMessage}", exception.ToString());
                     break;
                 }
                 case UserFriendlyException userFriendlyException:
                 {
                     _logger.LogError("Domain exception {Code} , {Message}",
                         userFriendlyException.Code, userFriendlyException.Message);
-                    
+
                     foreach (var exception in userFriendlyException.ErrorMessages)
                         _logger.LogError("UserFriendly exception {Code} , {Description}",
                             exception.Code, exception.Description);
@@ -236,21 +234,22 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                 {
                     _logger.LogError("Validation exception {Code} , {Message}",
                         validationException.Code, validationException.Message);
-                    
+
                     foreach (var exception in validationException.Failures)
                         _logger.LogError("Validation exception {PropertyName} , {ErrorMessage}",
                             exception.PropertyName, exception.ErrorMessage);
                     break;
                 }
                 default:
-                
-                if(context.Exception is FrameworkException frameworkException)
-                {
-                    _logger.LogError("Framework exception {Code} , {Message}",
-                        frameworkException.Code, frameworkException.Message);
+
+                    if (context.Exception is FrameworkException frameworkException)
+                    {
+                        _logger.LogError("Framework exception {Code} , {Message}",
+                            frameworkException.Code, frameworkException.Message);
+                        break;
+                    }
+
                     break;
-                }
-                break; 
             }
         }
 
@@ -266,6 +265,7 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                         _logger.LogError("Model state {PropertyName} , {ErrorMessage}",
                             message.PropertyName, message.ErrorMessage);
                     }
+
                     break;
                 }
                 case ValidationException validationException:
@@ -275,6 +275,7 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
                         _logger.LogError("Model state {PropertyName} , {ErrorMessage}",
                             message.PropertyName, message.ErrorMessage);
                     }
+
                     break;
             }
         }
@@ -282,10 +283,9 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
         protected virtual void HandleDomainError(ExceptionContext context, DomainException domainException)
         {
             context.Result = new BadRequestObjectResult(
-                Result.Fail(domainException.Description, domainException.Code)
-                    .WithMessageType(domainException.MessageType)
-                    .WithMessages(domainException.ErrorMessages)
-                    .WithValidationMessages(domainException.ValidationFailures)
+                Result.Fail(domainException.Description)
+                    .WithMessages([.. domainException.ErrorMessages])
+                    .WithValidationMessages([.. domainException.ValidationFailures])
                     .WithStatus(StatusCodes.Status400BadRequest)
                     .WithRequestPath(context.HttpContext.Request.Path)
                     .WithTraceId(Activity.Current?.Id ?? context.HttpContext.TraceIdentifier))
@@ -303,9 +303,10 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
         protected virtual void HandleValidationError(ExceptionContext context,
             ValidationException validationException)
         {
+            if (validationException == null) throw new ArgumentNullException(nameof(validationException));
             context.Result = new BadRequestObjectResult(Result
-                .Fail(validationException.Description, validationException.Code)
-                .WithValidationMessages(validationException.Failures)
+                .Fail(validationException.Description)
+                .WithValidationMessages([.. validationException.Failures])
                 .WithStatus(StatusCodes.Status400BadRequest)
                 .WithRequestPath(context.HttpContext.Request.Path)
                 .WithTraceId(Activity.Current?.Id ?? context.HttpContext.TraceIdentifier))
@@ -322,14 +323,14 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
 
         protected virtual void HandleProblemDetails(ExceptionContext context)
         {
-            if (context.Exception is DomainException || context.Exception is ValidationException) return;
+            if (context.Exception is DomainException or ValidationException) return;
 
 
             context.Result = new BadRequestObjectResult(
-                Result.Fail("ServerError", "There was an error.")
-                .WithStatus(StatusCodes.Status400BadRequest)
-                .WithRequestPath(context.HttpContext.Request.Path)
-                .WithTraceId(Activity.Current?.Id ?? context.HttpContext.TraceIdentifier) )
+                Result.Fail("ServerError")
+                    .WithStatus(StatusCodes.Status400BadRequest)
+                    .WithRequestPath(context.HttpContext.Request.Path)
+                    .WithTraceId(Activity.Current?.Id ?? context.HttpContext.TraceIdentifier))
             {
                 ContentTypes = new MediaTypeCollection
                 {
@@ -342,12 +343,14 @@ namespace Kharazmi.AspNetCore.Web.Exceptions
 
         protected virtual void ClearNotification(ITempDataDictionary tempData)
         {
+            if (tempData == null) throw new ArgumentNullException(nameof(tempData));
             tempData.Remove(NotificationConstant.NotificationKey);
         }
 
 
         protected virtual void Dispose(ExceptionContext context, ITempDataDictionary tempData)
         {
+            if (context == null) throw new ArgumentNullException(nameof(context));
             ClearNotification(tempData);
 
             switch (context.Exception)

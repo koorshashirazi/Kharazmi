@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Kharazmi.AspNetCore.Core.XUnitTests.EnumConverter
+﻿namespace Kharazmi.AspNetCore.Core.XUnitTests.EnumConverter
 {
     public class Employee
     {

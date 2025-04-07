@@ -1,5 +1,5 @@
 ﻿using System;
-using Kharazmi.AspNetCore.Core.Domain.Events;
+using Kharazmi.AspNetCore.Core.Domain;
 using Kharazmi.AspNetCore.Core.GuardToolkit;
 
 namespace Kharazmi.AspNetCore.Core.EventSourcing

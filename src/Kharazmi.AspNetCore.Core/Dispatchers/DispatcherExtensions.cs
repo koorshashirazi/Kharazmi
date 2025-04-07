@@ -1,5 +1,6 @@
 ﻿using Kharazmi.AspNetCore.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Kharazmi.AspNetCore.Core.Dispatchers
 {
@@ -9,10 +10,11 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
             ServiceLifetime dispatchersLifeTime,
             ServiceLifetime dispatcherFactoryLifetime)
         {
-            services.AddService<ICommandDispatcher, CommandDispatcher>(dispatchersLifeTime);
-            services.AddService<IEventDispatcher, EventDispatcher>(dispatchersLifeTime);
-            services.AddService<IQueryDispatcher, QueryDispatcher>(dispatchersLifeTime); 
-            services.AddService<IDomainDispatcher, DomainDispatcher>(dispatcherFactoryLifetime);
+            services.TryAddService<IDomainCommandDispatcher, DomainCommandDispatcher>(dispatchersLifeTime);
+            services.TryAddService<IDomainEventDispatcher, DomainEventDispatcher>(dispatchersLifeTime);
+            services.TryAddService<IDomainQueryDispatcher, DomainQueryDispatcher>(dispatchersLifeTime); 
+            services.TryAddService<IDomainDispatcher, DomainDispatcher>(dispatcherFactoryLifetime);
+            services.TryAddSingleton<IDomainCommandHandlerTypeFactory, DomainCommandHandlerTypeFactory>();
             return services;
         }
     }

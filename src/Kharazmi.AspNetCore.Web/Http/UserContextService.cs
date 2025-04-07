@@ -164,12 +164,13 @@ namespace Kharazmi.AspNetCore.Web.Http
 
             var client = HttpClientFactory.GetOrCreate(options.AuthorityUrl);
 
-            var discovery = await HttpClientFactory.GetDiscoveryResponseAsync(options.AuthorityUrl).ConfigureAwait(false);
+            var discovery = await HttpClientFactory.GetDiscoveryResponseAsync(options.AuthorityUrl)
+                .ConfigureAwait(false);
 
             if (discovery.IsError)
             {
-                return Result.Fail(
-                    MessageModel.For(discovery.Error, "RevokeAccessTokenFailError"));
+                return Result.Fail(FriendlyResultMessage.With("RevokeAccessTokenFailError"))
+                    .WithInternalMessages(InternalResultMessage.With(nameof(UserContextService), discovery.Error));
             }
 
             var response = await client.RevokeTokenAsync(
@@ -184,8 +185,9 @@ namespace Kharazmi.AspNetCore.Web.Http
 
             if (response.IsError)
             {
-                return Result.Fail(
-                    MessageModel.For(response.Error, "RevokeAccessTokenFailError"));
+                return Result
+                    .Fail(FriendlyResultMessage.With("RevokeAccessTokenFailError"))
+                    .WithInternalMessages(InternalResultMessage.With(nameof(UserContextService), response.Error));
             }
 
             return Result.Ok();
@@ -207,12 +209,14 @@ namespace Kharazmi.AspNetCore.Web.Http
             if (refreshToken.IsEmpty())
                 return Result.Fail("RevokeRefreshTokenFailError");
 
-            var discovery = await HttpClientFactory.GetDiscoveryResponseAsync(options.AuthorityUrl).ConfigureAwait(false);
+            var discovery = await HttpClientFactory.GetDiscoveryResponseAsync(options.AuthorityUrl)
+                .ConfigureAwait(false);
 
             if (discovery.IsError)
             {
-                return Result.Fail(
-                    MessageModel.For( discovery.Error, "RevokeRefreshTokenFailError"));
+                return Result
+                    .Fail(FriendlyResultMessage.With("RevokeAccessTokenFailError"))
+                    .WithInternalMessages(InternalResultMessage.With(nameof(UserContextService), discovery.Error));
             }
 
             var client = HttpClientFactory.GetOrCreate(options.AuthorityUrl);
@@ -229,8 +233,9 @@ namespace Kharazmi.AspNetCore.Web.Http
 
             if (response.IsError)
             {
-                return Result.Fail(
-                    MessageModel.For(response.Error, "RevokeRefreshTokenFailError"));
+                return Result
+                    .Fail(FriendlyResultMessage.With("RevokeAccessTokenFailError"))
+                    .WithInternalMessages(InternalResultMessage.With(nameof(UserContextService), response.Error));
             }
 
             return Result.Ok();

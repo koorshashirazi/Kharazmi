@@ -115,7 +115,7 @@ namespace Kharazmi.AspNetCore.Core.Linq
         {
             if (Filters?.Any() == true)
             {
-                return "(" + String.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(type,filters)).ToArray()) + ")";
+                return "(" + String.Join(" " + Logic + " ", [.. Filters.Select(filter => filter.ToExpression(type,filters))]) + ")";
             }
 
             var currentPropertyType = GetLastPropertyType(type, Field);

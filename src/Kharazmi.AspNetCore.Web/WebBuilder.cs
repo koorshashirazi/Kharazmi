@@ -40,6 +40,16 @@ namespace Kharazmi.AspNetCore.Web
             Services.AddAntiXssService();
             return this;
         }
+        
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public WebBuilder WithHtmlReader()
+        {
+            Services.AddHtmlReaderService();
+            return this;
+        }
 
         /// <summary>
         /// Register IUploadFileService

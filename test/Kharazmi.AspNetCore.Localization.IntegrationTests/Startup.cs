@@ -1,14 +1,8 @@
-using System.Collections.Generic;
 using System.Globalization;
 using Kharazmi.AspNetCore.Localization.IntegrationTests.Models;
 using Kharazmi.AspNetCore.Localization.Json.Extensions;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Kharazmi.AspNetCore.Localization.IntegrationTests
 {

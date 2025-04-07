@@ -3,29 +3,28 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Queries;
+using Kharazmi.AspNetCore.Core.Exceptions;
 using Kharazmi.AspNetCore.Core.Extensions;
 using Kharazmi.AspNetCore.Core.Functional;
 using Kharazmi.AspNetCore.Core.GuardToolkit;
 using Kharazmi.AspNetCore.Core.HandlerRetry;
 using Kharazmi.AspNetCore.Core.Handlers;
-using Kharazmi.AspNetCore.Core.Threading;
 using Microsoft.Extensions.Logging;
 
 namespace Kharazmi.AspNetCore.Core.Pipelines
 {
-    internal class TransientFaultQueryPipeline<TQuery, TResult> : IQueryHandler<TQuery, TResult>, IPipelineHandler
-        where TQuery : IQuery<TResult>
+    internal sealed class TransientFaultDomainQueryPipeline<TQuery, TResult> : DomainQueryHandler<TQuery, TResult>, IPipelineHandler
+        where TQuery : class,IDomainQuery
     {
-        private readonly ILogger<TransientFaultQueryPipeline<TQuery, TResult>> _logger;
-        private readonly IQueryHandler<TQuery, TResult> _handler;
+        private readonly ILogger<TransientFaultDomainQueryPipeline<TQuery, TResult>> _logger;
+        private readonly IDomainQueryHandler<TQuery, TResult> _handler;
         private readonly IHandlerRetryStrategy _retryStrategy;
         private readonly IDomainContextService _domainContextService;
 
-        public TransientFaultQueryPipeline(
-            IQueryHandler<TQuery, TResult> handler,
+        public TransientFaultDomainQueryPipeline(
+            IDomainQueryHandler<TQuery, TResult> handler,
             IHandlerRetryStrategy retryStrategy,
-            ILogger<TransientFaultQueryPipeline<TQuery, TResult>> logger, IDomainContextService domainContextService)
+            ILogger<TransientFaultDomainQueryPipeline<TQuery, TResult>> logger, IDomainContextService domainContextService)
         {
             _logger = logger;
             _domainContextService = domainContextService;
@@ -33,69 +32,87 @@ namespace Kharazmi.AspNetCore.Core.Pipelines
             _retryStrategy = Ensure.ArgumentIsNotNull(retryStrategy, nameof(retryStrategy));
         }
 
-        public async Task<Result<TResult>> HandleAsync(TQuery query, DomainContext domainContext,
-            CancellationToken cancellationToken = default)
+
+        public override Task<Result<TResult>> HandleAsync(TQuery query, CancellationToken token = default)
         {
-            var label = $"{query.GetGenericTypeName()}";
-            var stopwatch = Stopwatch.StartNew();
-            var currentRetryCount = 0;
-
-            while (true)
+          return ExceptionHandler.ExecuteResultAsAsync(async () =>
             {
-                Exception currentException;
-                Retry retry;
+                if (token.IsCancellationRequested) return Result.Fail<TResult>("Cancellation is requested");
 
-                try
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    var result = await _handler.HandleAsync(query, domainContext, cancellationToken)
-                        .ConfigureAwait(false);
-                    _logger?.LogDebug(
-                        "Finished execution of '{0}' after {1} retries and {2:0.###} seconds",
-                        label,
-                        currentRetryCount,
-                        stopwatch.Elapsed.TotalSeconds);
+                var label = query.QueryType.ToString();
+                var stopwatch = Stopwatch.StartNew();
 
-                    return result;
-                }
-                catch (Exception ex)
+                return await HandleResultAsync(query, token, label, 0, stopwatch.Elapsed.TotalSeconds)
+                    .ConfigureAwait(false);
+            }, onError: async ex =>
+            {
+                var label = query.QueryType.ToString();
+                var stopwatch = Stopwatch.StartNew();
+                var currentRetryCount = 0;
+
+                while (true)
                 {
-                    currentException = ex;
                     var currentTime = stopwatch.Elapsed;
-                    retry = _retryStrategy.ShouldBeRetied(currentException, currentTime, currentRetryCount);
+                    _logger.LogDebug(ex.Message);
+
+                    var retry = _retryStrategy.ShouldBeRetied(ex, currentTime, currentRetryCount);
+
                     if (!retry.ShouldBeRetried)
                     {
                         ex.AsDomainException();
+                        return Result.Fail<TResult>(
+                            $"Exception with message '{ex.Message} 'is transient, retrying action '{label}' after {retry.RetryAfter.TotalSeconds} seconds for retry count {currentRetryCount}");
                     }
-                }
 
-                domainContext.UpdateRetrying(currentRetryCount);
+                    await _domainContextService
+                        .UpdateAsync(context => context.UpdateRetrying(currentRetryCount))
+                        .ConfigureAwait(false);
 
-                if (_domainContextService != null)
-                    await _domainContextService.UpdateAsync<TQuery>(domainContext).ConfigureAwait(false);
+                    currentRetryCount++;
 
-                currentRetryCount++;
-                if (retry.RetryAfter != TimeSpan.Zero)
-                {
-                    _logger?.LogDebug(
-                        "Exception {0} with message '{1} 'is transient, retrying action '{2}' after {3:0.###} seconds for retry count {4}",
-                        currentException.WithDetailsJsonException().Message,
-                        currentException.Message,
-                        label,
-                        retry.RetryAfter.TotalSeconds,
-                        currentRetryCount);
-                    await Task.Delay(retry.RetryAfter, cancellationToken).ConfigureAwait(false);
+                    var result = await HandleResultAsync(query, token, label, currentRetryCount, stopwatch.Elapsed.TotalSeconds)
+                        .ConfigureAwait(false);
+
+                    if (retry.RetryAfter != TimeSpan.Zero)
+                    {
+                        _logger.LogDebug(
+                            "Exception with message '{Message} 'is transient, retrying action '{Label}' after {RetryAfter} seconds for retry count {CurrentRetryCount}",
+                            ex.Message,
+                            label,
+                            retry.RetryAfter.TotalSeconds,
+                            currentRetryCount);
+
+                        await Task.Delay(retry.RetryAfter, token).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        _logger.LogDebug(
+                            "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
+                            ex.AsJsonException(),
+                            ex.Message,
+                            label,
+                            currentRetryCount);
+                    }
+
+                    if (result.Failed) continue;
+
+                    return result;
                 }
-                else
-                {
-                    _logger?.LogDebug(
-                        "Exception {0} with message '{1}' is transient, retrying action '{2}' NOW for retry count {3}",
-                        currentException.WithDetailsJsonException().Message,
-                        currentException.Message,
-                        label,
-                        currentRetryCount);
-                }
-            }
+            });
+        }
+
+        private async Task<Result<TResult>> HandleResultAsync(TQuery query, CancellationToken token, string label,
+            int currentRetryCount, double totalSeconds)
+        {
+            var result = await _handler
+                .HandleAsync(query, token)
+                .ConfigureAwait(false);
+
+            _logger.LogDebug(
+                "Finished execution of '{Label}' after {CurrentRetryCount} retries and {TotalSeconds} seconds",
+                label, currentRetryCount, totalSeconds);
+
+            return result;
         }
     }
 }

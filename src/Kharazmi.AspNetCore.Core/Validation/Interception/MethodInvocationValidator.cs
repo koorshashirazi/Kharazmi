@@ -35,8 +35,8 @@ namespace Kharazmi.AspNetCore.Core.Validation.Interception
 
         public IEnumerable<ValidationFailure> Validate(MethodInfo method, object[] parameterValues)
         {
-            Guard.ArgumentNotNull(method, nameof(method));
-            Guard.ArgumentNotNull(parameterValues, nameof(parameterValues));
+            Ensure.ArgumentIsNotNull(method, nameof(method));
+            Ensure.ArgumentIsNotNull(parameterValues, nameof(parameterValues));
 
             var parameters = method.GetParameters();
 

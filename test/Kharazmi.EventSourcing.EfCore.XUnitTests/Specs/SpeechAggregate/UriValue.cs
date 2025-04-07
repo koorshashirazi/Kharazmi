@@ -1,5 +1,4 @@
-﻿using System;
-using Kharazmi.AspNetCore.Core.Exceptions;
+﻿using Kharazmi.AspNetCore.Core.Exceptions;
 
 namespace Kharazmi.EventSourcing.EfCore.XUnitTests.Specs.SpeechAggregate
 {

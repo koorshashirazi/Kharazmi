@@ -18,14 +18,14 @@ namespace Kharazmi.AspNetCore.Core.Validation
 
     /// <summary>Defines a validation failure</summary>
     [Serializable]
-    public class ValidationFailure
+    public sealed record ValidationFailure
     {
-        private ValidationFailure()
+        internal ValidationFailure()
         {
         }
 
         /// <summary>Creates a new ValidationFailure.</summary>
-        protected ValidationFailure(string propertyName, string errorMessage, object attemptedValue = (object) null)
+        public ValidationFailure(string propertyName, string errorMessage, object? attemptedValue = null)
         {
             PropertyName = propertyName;
             ErrorMessage = errorMessage;
@@ -67,7 +67,18 @@ namespace Kharazmi.AspNetCore.Core.Validation
         /// <summary>Creates a textual representation of the failure.</summary>
         public override string ToString()
         {
-            return $"{PropertyName} : {ErrorMessage}";
+#if DEBUG
+            return $$"""
+                     { 
+                        "PropertyName": "{{PropertyName}}",
+                        "ErrorMessage": "{{ErrorMessage}}"
+                     }
+                     """;
+#else
+        return $$"""
+                 { "PropertyName": "{{PropertyName}}", "ErrorMessage": "{{ErrorMessage}}" }
+                 """;
+#endif
         }
 
 
@@ -78,7 +89,7 @@ namespace Kharazmi.AspNetCore.Core.Validation
         /// <param name="errorMessage"></param>
         /// <param name="attemptedValue"></param>
         /// <returns></returns>
-        public static ValidationFailure For(string propertyName, string errorMessage, object attemptedValue = null)
+        public static ValidationFailure For(string propertyName, string errorMessage, object? attemptedValue = null)
         {
             return new ValidationFailure(propertyName, errorMessage, attemptedValue);
         }

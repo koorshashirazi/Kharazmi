@@ -8,7 +8,7 @@ namespace Kharazmi.AspNetCore.Web.Results
 
         public JavaScriptRedirectResult(string redirectUrl)
         {
-            Guard.ArgumentNotEmpty(redirectUrl, nameof(redirectUrl));
+            Ensure.ArgumentIsNotEmpty(redirectUrl, nameof(redirectUrl));
 
             Script = string.Format(RedirectScriptFormat, redirectUrl);
         }

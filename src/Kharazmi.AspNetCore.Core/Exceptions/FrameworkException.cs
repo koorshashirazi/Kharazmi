@@ -62,7 +62,7 @@ namespace Kharazmi.AspNetCore.Core.Exceptions
         /// <param name="description"></param>
         /// <param name="code"></param>
         /// <param name="errors"></param>
-        public FrameworkException(string message, Exception innerException = null, string description = "",
+        public FrameworkException(string message, Exception? innerException = null, string description = "",
             string code = ""): base(message, innerException)
         {
             Code = code;

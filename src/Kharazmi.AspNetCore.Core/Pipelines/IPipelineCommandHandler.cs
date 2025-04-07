@@ -1,8 +1,8 @@
-﻿using Kharazmi.AspNetCore.Core.Domain.Commands;
+﻿using Kharazmi.AspNetCore.Core.Domain;
 
- namespace Kharazmi.AspNetCore.Core.Pipelines
+namespace Kharazmi.AspNetCore.Core.Pipelines
 {
-    public interface IPipelineCommandHandler<in TCommand> : IPipelineHandler where TCommand : Command
+    public interface IPipelineCommandHandler<in TCommand> : IPipelineHandler where TCommand : DomainCommand
     {
     }
 }

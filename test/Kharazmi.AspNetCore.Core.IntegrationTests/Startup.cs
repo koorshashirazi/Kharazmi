@@ -1,4 +1,3 @@
-using System;
 using System.Security.Claims;
 using Kharazmi.AspNetCore.Core.Bus;
 using Kharazmi.AspNetCore.Core.Domain.Events;
@@ -11,12 +10,7 @@ using Kharazmi.AspNetCore.Web;
 using Kharazmi.AspNetCore.Web.Bus;
 using Kharazmi.EventSourcing.EfCore;
 using Kharazmi.MessageBroker;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Kharazmi.AspNetCore.Core.IntegrationTests
 {

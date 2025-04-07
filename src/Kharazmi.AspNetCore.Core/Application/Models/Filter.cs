@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Kharazmi.AspNetCore.Core.Application.Models
@@ -89,7 +89,7 @@ namespace Kharazmi.AspNetCore.Core.Application.Models
         {
             if (Filters != null && Filters.Any())
             {
-                return "(" + string.Join(" " + Logic + " ", Filters.Select(filter => filter.ToExpression(filters)).ToArray()) + ")";
+                return "(" + string.Join(" " + Logic + " ", [.. Filters.Select(filter => filter.ToExpression(filters))]) + ")";
             }
 
             var index = filters.IndexOf(this);

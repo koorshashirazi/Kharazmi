@@ -17,7 +17,8 @@ namespace Kharazmi.EventSourcing.EfCore.XUnitTests.Specs
         public void CreateInstanceOfAggregateRootShouldReturnEmptyAggregate()
         {
             //Arrange
-            var sut = new AggregateFactory(new InstanceCreator());
+            using var instanceCreator = new InstanceCreator();
+            var sut = new AggregateFactory(instanceCreator);
 
             //Act
             var result = sut.GetOrCreate<Speech, string>();

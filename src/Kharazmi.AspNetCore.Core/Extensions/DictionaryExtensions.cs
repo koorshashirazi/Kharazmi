@@ -86,7 +86,7 @@ namespace Kharazmi.AspNetCore.Core.Extensions
         public static ExpandoObject ToExpandoObject(this IDictionary<string, object> source,
             bool castIfPossible = false)
         {
-            Guard.ArgumentNotNull(source, nameof(source));
+            Ensure.ArgumentIsNotNull(source, nameof(source));
 
             if (castIfPossible && source is ExpandoObject)
                 return (ExpandoObject) source;

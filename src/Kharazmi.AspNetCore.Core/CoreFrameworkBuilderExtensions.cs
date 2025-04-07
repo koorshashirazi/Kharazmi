@@ -42,7 +42,7 @@ namespace Kharazmi.AspNetCore.Core
         /// <returns></returns>
         public static BusBuilder AddEventBus(
             this CoreFrameworkBuilder builder,
-            Assembly[] assemblies = null,
+            Assembly[]? assemblies = null,
             ServiceLifetime dispatcherFactoryLifeTime = ServiceLifetime.Scoped,
             ServiceLifetime dispatcherLifeTime = ServiceLifetime.Scoped,
             ServiceLifetime domainContextService = ServiceLifetime.Scoped)
@@ -61,7 +61,7 @@ namespace Kharazmi.AspNetCore.Core
 
             builder.Services.AddTransient<IDomainEventFactory, DomainEventFactory>();
 
-            builder.Services.AddTransient<InstanceCreator>();
+            builder.Services.AddTransient<IInstanceCreator, InstanceCreator>();
             builder.Services.AddScoped<IAggregateFactory, AggregateFactory>();
 
             builder.Services.TryAddService<IEventStore, NullEventStore>(ServiceLifetime.Scoped);

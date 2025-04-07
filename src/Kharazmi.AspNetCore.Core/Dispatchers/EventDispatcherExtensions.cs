@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Kharazmi.AspNetCore.Core.Application.Events;
 using Kharazmi.AspNetCore.Core.Application.Models;
 using Kharazmi.AspNetCore.Core.Domain;
-using Kharazmi.AspNetCore.Core.Domain.Events;
 using Kharazmi.AspNetCore.Core.Functional;
 
 namespace Kharazmi.AspNetCore.Core.Dispatchers
@@ -21,17 +20,15 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// </summary>
         /// <param name="busManager"></param>
         /// <param name="events"></param>
-        /// <param name="domainContext"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public static Task RaiseEventAsync(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<IDomainEvent> events,
-            DomainContext domainContext = null,
             CancellationToken cancellationToken = default)
         {
             var tasks = events.Select(async @event => await
-                busManager.RaiseAsync(@event, domainContext, cancellationToken).ConfigureAwait(false));
+                busManager.RaiseAsync(@event,  cancellationToken).ConfigureAwait(false));
             return Task.WhenAll(tasks);
         }
 
@@ -46,7 +43,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseCreatingEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<TModel> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -64,7 +61,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseCreatedEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<TModel> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -82,7 +79,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseEditingEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<ModifiedModel<TModel>> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -100,7 +97,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseEditedEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<ModifiedModel<TModel>> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -118,7 +115,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseDeletingEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<TModel> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -136,7 +133,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         /// <typeparam name="TKey"></typeparam>
         /// <returns></returns>
         public static Task RaiseDeletedEventAsync<TModel, TKey>(
-            this IEventDispatcher busManager,
+            this IDomainEventDispatcher busManager,
             IEnumerable<TModel> models,
             CancellationToken cancellationToken = default)
             where TModel : MasterModel<TKey> where TKey : IEquatable<TKey>
@@ -145,7 +142,7 @@ namespace Kharazmi.AspNetCore.Core.Dispatchers
         }
 
         private static Task<Result> RaiseAsync(
-            IEventDispatcher busManager,
+            IDomainEventDispatcher busManager,
             Type eventType,
             object model,
             CancellationToken cancellationToken = default)

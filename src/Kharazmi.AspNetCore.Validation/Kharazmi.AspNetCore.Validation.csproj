@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
 
@@ -11,15 +11,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation"/>
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
+        
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj"/>
+        <ProjectReference Include="..\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-        <PackageReference Include="Kharazmi.AspNetCore.Core"/>
+        <PackageReference Include="Kharazmi.AspNetCore.Core" />
     </ItemGroup>
 
 </Project>

@@ -38,8 +38,8 @@ namespace Kharazmi.MongoDb
         {
             _logger = Ensure.ArgumentIsNotNull(logger, nameof(logger));
             Ensure.ArgumentIsNotNull(options, nameof(options));
-            Ensure.IsNotEmpty(options.Database, nameof(options.Database));
-            Ensure.IsNotEmpty(options.Host, nameof(options.Host));
+            Ensure.ArgumentIsNotEmpty(options.Database, nameof(options.Database));
+            Ensure.ArgumentIsNotEmpty(options.Host, nameof(options.Host));
             _commands = new Dictionary<string, Func<Task>>();
 
             var clientSettings = CreateMongoClientSettings(options);
@@ -138,7 +138,7 @@ namespace Kharazmi.MongoDb
 
         public bool SaveCommitChanges()
         {
-            return AsyncHelper.RunAsSync(() => SaveCommitChangesAsync(CancellationToken.None));
+            return AsyncHelper.RunSync(() => SaveCommitChangesAsync(CancellationToken.None));
         }
 
 
