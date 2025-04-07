@@ -137,24 +137,24 @@
         "GitHubUsername": {
           "type": "string"
         },
-        "IncrementMajorVersion": {
+        "IncrementMajor": {
           "type": "boolean",
           "description": "Increment major version"
         },
-        "IncrementMinorVersion": {
+        "IncrementMinor": {
           "type": "boolean",
           "description": "Increment minor version"
         },
-        "IncrementPatchVersion": {
+        "IncrementPatch": {
           "type": "boolean",
           "description": "Increment Patch Version"
         },
-        "MajorVersion": {
+        "Major": {
           "type": "integer",
           "description": "Major version",
           "format": "int32"
         },
-        "MinorVersion": {
+        "Minor": {
           "type": "integer",
           "description": "Minor version",
           "format": "int32"
@@ -176,7 +176,7 @@
           "type": "string",
           "description": "Packages to update. Example: 'Kharazmi.AspNetCore: 3.0.0, Kharazmi.EfCore: 3.0.1' "
         },
-        "PatchVersion": {
+        "Patch": {
           "type": "integer",
           "description": "Patch version",
           "format": "int32"

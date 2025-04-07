@@ -5,10 +5,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+      <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Kharazmi.AspNetCore.Core\Kharazmi.AspNetCore.Core.csproj" />
   </ItemGroup>
 
+    <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+        <PackageReference Include="PersianCat.Generator.XUnitTest.Common" />
+        <PackageReference Include="PersianCat.Generator.XUnitTest" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
 </Project>

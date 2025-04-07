@@ -28,7 +28,7 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     NonEntryTargets = [nameof(Restore)])]
 class Build : NukeBuild
 {
-    public static int Main() => Execute<Build>(x => x.PublishToNuGet);
+    public static int Main() => Execute<Build>(x => x.Pack);
 
     #region Fields
 
@@ -61,24 +61,24 @@ class Build : NukeBuild
     [Parameter] readonly string GitHubUsername;
 
 
-    [Parameter("New version for packages")] readonly string NewVersion = "3.0.1";
+    [Parameter("New version for packages")] readonly string NewVersion = "3.1.0";
 
     [Parameter("Prefix of packages to update")] readonly string PackagePrefix = "Kharazmi.";
 
     [Parameter("Packages to update. Example: 'Kharazmi.AspNetCore: 3.0.0, Kharazmi.EfCore: 3.0.1' ")]
     readonly string PackagesToUpdate = "";
 
-    [Parameter("Major version")] readonly int MajorVersion;
+    [Parameter("Major version")] readonly int Major;
 
-    [Parameter("Increment major version")] readonly bool IncrementMajorVersion;
+    [Parameter("Increment major version")] readonly bool IncrementMajor;
 
-    [Parameter("Minor version")] readonly int MinorVersion;
+    [Parameter("Minor version")] readonly int Minor;
 
-    [Parameter("Increment minor version")] readonly bool IncrementMinorVersion;
+    [Parameter("Increment minor version")] readonly bool IncrementMinor;
 
-    [Parameter("Patch version")] readonly int PatchVersion;
+    [Parameter("Patch version")] readonly int Patch;
 
-    [Parameter("Increment Patch Version")] readonly bool IncrementPatchVersion;
+    [Parameter("Increment Patch Version")] readonly bool IncrementPatch;
 
     [Parameter("Version prefix (e.g. alpha, beta)")] readonly string VersionPrefix = "";
 
@@ -219,7 +219,7 @@ class Build : NukeBuild
 
             var packableProjects = Solution
                 .GetAllProjects("*")
-                .Where(p => !p.Name.EndsWith("Tests") && !p.Name.EndsWith("Console") && !p.Name.EndsWith("_build"));
+                .Where(p => p.Path.Equals(Solution.Path / "src"));
 
             var sortedProjects = SortProjectsByDependencies(packableProjects);
             var versions = Versions.LoadProjectVersions(RootDirectory, VersionFile);
@@ -248,7 +248,7 @@ class Build : NukeBuild
                                 """, project);
 
                 var version = versions.GetOrDefaultVersion(project.Name);
-                version.ValidateVersion(versionOption);
+                version = version.ValidateVersion(versionOption);
 
                 var fullVersion = version.FullVersion;
 
@@ -286,7 +286,9 @@ class Build : NukeBuild
 
                 if (!UpdatePackageVersion(packageElements, packageId, fullVersion, out var packageInfo))
                 {
-                    Log.Error("Package {PackageId} not found in {PackagesPropsPath}", packageId, PackagesPropsPath);
+                    Log.Error(
+                        "Unable to update the  {PackageId} Package in {PackagesPropsPath}. Invalid package version set or no update required",
+                        packageId, PackagesPropsPath);
                 }
                 else
                 {
@@ -309,12 +311,12 @@ class Build : NukeBuild
 
     Action<VersionOption> CreateVersionOptions() => op =>
     {
-        op.Major = MajorVersion;
-        op.Minor = MinorVersion;
-        op.Patch = PatchVersion;
-        op.IncrementMajor = IncrementMajorVersion;
-        op.IncrementMinor = IncrementMinorVersion;
-        op.IncrementPatch = IncrementPatchVersion;
+        op.Major = Major;
+        op.Minor = Minor;
+        op.Patch = Patch;
+        op.IncrementMajor = IncrementMajor;
+        op.IncrementMinor = IncrementMinor;
+        op.IncrementPatch = IncrementPatch;
         op.VersionPrefix = VersionPrefix;
         op.VersionSuffix = VersionSuffix;
         op.VersionFile = VersionFile;
@@ -327,7 +329,7 @@ class Build : NukeBuild
         .Requires(() => !string.IsNullOrWhiteSpace(NuGetApiKey))
         .Executes(() =>
         {
-            var packages = PackagesDirectory.GlobFiles("*.nupkg");
+            var packages = PackagesDirectory.GlobFiles("Kharazmi*.nupkg");
 
             foreach (var package in packages)
             {
@@ -578,7 +580,7 @@ class Build : NukeBuild
 
             var currentVersion = packageElement.Attribute("Version")?.Value;
             if (currentVersion is null ||
-                currentVersion.Equals(NewVersion, StringComparison.InvariantCultureIgnoreCase))
+                currentVersion.Equals(newVersion, StringComparison.InvariantCultureIgnoreCase))
             {
                 updatePackageInfo = new UpdatePackageInfo(pkgId, currentVersion);
                 return false;
@@ -754,14 +756,14 @@ public record struct Version
         VersionOption option = new();
         options?.Invoke(option);
 
-        if (option.Major > 1 && option.Major != Major)
-            Major = option.Major;
+        if (option is { Major: <= 0, Minor: <= 0, Patch: <= 0 })
+        {
+            return this;
+        }
 
-        if (option.Minor > 1 && option.Minor != Minor)
-            Minor = option.Minor;
-
-        if (option.Patch > 1 && option.Patch != Patch)
-            Patch = option.Patch;
+        Major = option.Major;
+        Minor = option.Minor;
+        Patch = option.Patch;
 
         if (!string.IsNullOrEmpty(option.VersionPrefix) && option.VersionPrefix != Prefix)
             Prefix = option.VersionPrefix;

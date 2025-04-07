@@ -1,1 +1,122 @@
-{"Global":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Core":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.EfCore":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Cache":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Validation":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Cqrs":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Cqrs.EfCore":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Localization":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Localization.EFCore":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Security":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.AspNetCore.Web":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.BackgroundJob":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.EventSourcing.EfCore":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.MessageBroker":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""},"Kharazmi.MongoDb":{"FullVersion":"3.0.1","Major":3,"Minor":0,"Patch":1,"Prefix":"","Suffix":""}}
+{
+  "Global": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Core": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.EfCore": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Cache": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Validation": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Cqrs": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Cqrs.EfCore": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Localization": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Localization.EFCore": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Security": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.AspNetCore.Web": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.BackgroundJob": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.EventSourcing.EfCore": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.MessageBroker": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  },
+  "Kharazmi.MongoDb": {
+    "FullVersion": "3.1.0",
+    "Major": 3,
+    "Minor": 1,
+    "Patch": 0,
+    "Prefix": "",
+    "Suffix": ""
+  }
+}

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
@@ -86,19 +86,21 @@
         <PackageVersion Include="Benchmark" Version="1.0.2"/>
         <PackageVersion Include="Nuke.Common" Version="9.0.4"/>
         <PackageVersion Include="coverlet.msbuild" Version="6.0.4"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Cache" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Core" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Cqrs" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Cqrs.EfCore" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.EfCore" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Localization" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Localization.EfCore" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Security" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Validation" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.AspNetCore.Web" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.BackgroundJob" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.EventSourcing.EfCore" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.MessageBroker" Version="3.0.1"/>
-        <PackageVersion Include="Kharazmi.MongoDb" Version="3.0.1"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Cache" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Core" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Cqrs" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Cqrs.EfCore" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.EfCore" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Localization" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Localization.EfCore" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Security" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Validation" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.AspNetCore.Web" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.BackgroundJob" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.EventSourcing.EfCore" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.MessageBroker" Version="3.1.0"/>
+        <PackageVersion Include="Kharazmi.MongoDb" Version="3.1.0"/>
+        <PackageVersion Include="PersianCat.Generator.XUnitTest" Version="1.0.9"/>
+        <PackageVersion Include="PersianCat.Generator.XUnitTest.Common" Version="1.0.9"/>
     </ItemGroup>
 </Project>
